@@ -2,12 +2,39 @@
 <html lang="en">
 <head>
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+
     <meta charset="UTF-8">
+
     <title>Launcher Le Eaglercraft</title>
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#996666">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
     <style>
-        body { font-family: sans-serif; text-align: center; margin: 20px;}
-        button { font-size: 16px; margin: 5px; padding: 8px 16px; cursor: pointer; border: 2px solid #55b555;}
-        iframe { width: 90%; height: 600px; border: 2px solid #55b555; margin-top: 20px; }
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #996666;
+        }
+
+        button {
+            font-size: 16px;
+            margin: 5px;
+            padding: 8px 16px;
+            cursor: pointer;
+            border: 2px solid #55b555;
+        }
+
+        iframe {
+            width: 90%;
+            height: 600px;
+            border: 2px solid #55b555;
+            margin-top: 20px;
+        }
 
         iframe:fullscreen {
             width: 100vw;
@@ -15,36 +42,80 @@
             border: none;
         }
 
-        /* ADDED: fullscreen button bottom-left */
+        /* Fullscreen button bottom-left */
         button[onclick="toggleFullscreen()"] {
             position: fixed;
             bottom: 15px;
             left: 15px;
             z-index: 9999;
         }
+
+        a {
+            color: blue;
+        }
     </style>
 </head>
+
 <body>
+
     <h1>
-        <img src="favicon.ico" alt="icon"
+        <img src="favicon.ico"
+             alt="icon"
              style="display:block; height:64px; margin:0 auto 8px auto;">
+
         Launcher Le Eaglercraft
     </h1>
 
     <p>Click a version to play!</p>
 
-    <button onclick="loadPart('https://Vexo-Sirramenboi.github.io/secret-stuff/')">Minecraft 1.12.2</button>
-    <button onclick="loadPart('https://Vexo-Sirramenboi.github.io/secret-stuff-v6/')">EaglercraftX 1.8.8</button>
-    <button onclick="loadPart('https://Vexo-Sirramenboi.github.io/secret-stuff-v4/')">Beta 1.7.3</button>
-    <button onclick="loadPart('https://Vexo-Sirramenboi.github.io/secret-stuff-v7/')">Beta 1.3_01</button>
-    <button onclick="loadPart('https://Vexo-Sirramenboi.github.io/secret-stuff-v5/')">Alpha 1.2.6</button>
-    <button onclick="loadPart('https://Vexo-Sirramenboi.github.io/secret-stuff-v3/')">Minecraft Indev</button>
-    <button onclick="loadPart('https://Vexo-Sirramenboi.github.io/secret-stuff-v8')">C0.30</button>
-    <button onclick="loadPart('about:blank')">Not Yet Added</button>
-    
-    <button onclick="toggleFullscreen()">Fullscreen</button>
+    <button onclick="loadPart('https://Vexo-Sirramenboi.github.io/secret-stuff/')">
+        Minecraft 1.12.2
+    </button>
+
+    <button onclick="loadPart('https://Vexo-Sirramenboi.github.io/secret-stuff-v6/')">
+        EaglercraftX 1.8.8
+    </button>
+
+    <button onclick="loadPart('https://Vexo-Sirramenboi.github.io/secret-stuff-v4/')">
+        Beta 1.7.3
+    </button>
+
+    <button onclick="loadPart('https://Vexo-Sirramenboi.github.io/secret-stuff-v7/')">
+        Beta 1.3_01
+    </button>
+
+    <button onclick="loadPart('https://Vexo-Sirramenboi.github.io/secret-stuff-v5/')">
+        Alpha 1.2.6
+    </button>
+
+    <button onclick="loadPart('https://Vexo-Sirramenboi.github.io/secret-stuff-v3/')">
+        Minecraft Indev
+    </button>
+
+    <button onclick="loadPart('https://Vexo-Sirramenboi.github.io/secret-stuff-v8')">
+        C0.30
+    </button>
+
+    <button onclick="loadPart('about:blank')">
+        Not Yet Added
+    </button>
+
+    <button onclick="toggleFullscreen()">
+        Fullscreen
+    </button>
 
     <iframe id="gameFrame" src="" allowfullscreen></iframe>
+
+    <p style="color:black;">
+        These websites were made by me Vexo-Sirramenboi,
+        but the source code for them was not made by me.
+    </p>
+
+    <p>
+        <a href="https://eaglercraftub.neocities.org/" target="_blank">
+            Visit them at this website
+        </a>
+    </p>
 
     <script>
         function loadPart(url) {
@@ -53,35 +124,23 @@
 
         function toggleFullscreen() {
             const iframe = document.getElementById('gameFrame');
+
             if (!document.fullscreenElement) {
                 iframe.requestFullscreen();
             } else {
                 document.exitFullscreen();
             }
         }
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(reg => console.log('Service Worker Registered'))
+                    .catch(err => console.log('Service Worker Failed', err));
+            });
+        }
     </script>
-</body>
-</html>
 
-</p><element style="color: black;">These websites where made by me Vexo-Sirramenboi but the source code for them were not made by me.</element>
-<element style="color: red:">
-    <a href="https://eaglercraftub.neocities.org/" target="_blank">Visit them at this website</a>
-</p>
-</element>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Background Color</title>
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      background-color: #996666;
-    }
-  </style>
-</head>
-<body>
 </body>
 </html>
