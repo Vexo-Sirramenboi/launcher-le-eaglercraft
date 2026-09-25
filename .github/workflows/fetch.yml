@@ -19,7 +19,7 @@ jobs:
       # ============================================================
       # 1. Checkout YOUR launcher repository
       # ============================================================
-      - name: Checkout Launcher Le Eaglercraft
+      - name: Checkout Launcher
         uses: actions/checkout@v4
         with:
           path: launcher
@@ -33,7 +33,7 @@ jobs:
           dotnet-version: '8.0.x'
 
       # ============================================================
-      # 3. Create build directories
+      # 3. Create directories
       # ============================================================
       - name: Create build directories
         shell: powershell
@@ -45,177 +45,182 @@ jobs:
           New-Item -ItemType Directory -Force -Path "dist"
 
       # ============================================================
-      # 4. Copy EVERYTHING from your launcher repository
+      # 4. Copy YOUR existing launcher files
       #
-      # Uses the actual files already in launcher-le-eaglercraft.
-      #
-      # Robocopy exit codes 0-7 are successful/status results.
-      # Only 8+ means an actual copy failure.
+      # No Robocopy.
+      # No modification to your actual repository files.
       # ============================================================
       - name: Copy existing launcher
         shell: powershell
         run: |
-          robocopy "launcher" "build\launcher" /E /XD ".git" ".github" /XF ".gitignore"
+          $source = Join-Path $PWD "launcher"
+          $destination = Join-Path $PWD "build\launcher"
 
-          $code = $LASTEXITCODE
+          Get-ChildItem -Path $source -Force |
+            Where-Object {
+              $_.Name -ne ".git" -and
+              $_.Name -ne ".github" -and
+              $_.Name -ne ".gitignore"
+            } |
+            Copy-Item -Destination $destination -Recurse -Force
 
-          Write-Host "Robocopy exit code: $code"
-
-          if ($code -le 7) {
-            exit 0
-          }
-
-          Write-Error "Robocopy failed with exit code $code"
-          exit $code
+          Write-Host ""
+          Write-Host "Existing launcher files copied:"
+          Get-ChildItem -Path $destination -Recurse -File |
+            ForEach-Object {
+              Write-Host $_.FullName
+            }
 
       # ============================================================
-      # 5. Download secret-stuff-
+      # 5. Download secret-stuff
       # ============================================================
-      - name: Download secret-stuff-
-        shell: powershell
-        run: |
-          git clone --depth 1 `
-            "https://github.com/Vexo-Sirramenboi/secret-stuff-.git" `
-            "build\games\secret-stuff-"
+      - name: Download secret-stuff
+        uses: actions/checkout@v4
+        with:
+          repository: Vexo-Sirramenboi/secret-stuff
+          path: build/games/secret-stuff
+          fetch-depth: 1
 
       # ============================================================
       # 6. Download secret-stuff-v2
       # ============================================================
       - name: Download secret-stuff-v2
-        shell: powershell
-        run: |
-          git clone --depth 1 `
-            "https://github.com/Vexo-Sirramenboi/secret-stuff-v2.git" `
-            "build\games\secret-stuff-v2"
+        uses: actions/checkout@v4
+        with:
+          repository: Vexo-Sirramenboi/secret-stuff-v2
+          path: build/games/secret-stuff-v2
+          fetch-depth: 1
 
       # ============================================================
       # 7. Download secret-stuff-v3
       # ============================================================
       - name: Download secret-stuff-v3
-        shell: powershell
-        run: |
-          git clone --depth 1 `
-            "https://github.com/Vexo-Sirramenboi/secret-stuff-v3.git" `
-            "build\games\secret-stuff-v3"
+        uses: actions/checkout@v4
+        with:
+          repository: Vexo-Sirramenboi/secret-stuff-v3
+          path: build/games/secret-stuff-v3
+          fetch-depth: 1
 
       # ============================================================
       # 8. Download secret-stuff-v4
       # ============================================================
       - name: Download secret-stuff-v4
-        shell: powershell
-        run: |
-          git clone --depth 1 `
-            "https://github.com/Vexo-Sirramenboi/secret-stuff-v4.git" `
-            "build\games\secret-stuff-v4"
+        uses: actions/checkout@v4
+        with:
+          repository: Vexo-Sirramenboi/secret-stuff-v4
+          path: build/games/secret-stuff-v4
+          fetch-depth: 1
 
       # ============================================================
       # 9. Download secret-stuff-v5
       # ============================================================
       - name: Download secret-stuff-v5
-        shell: powershell
-        run: |
-          git clone --depth 1 `
-            "https://github.com/Vexo-Sirramenboi/secret-stuff-v5.git" `
-            "build\games\secret-stuff-v5"
+        uses: actions/checkout@v4
+        with:
+          repository: Vexo-Sirramenboi/secret-stuff-v5
+          path: build/games/secret-stuff-v5
+          fetch-depth: 1
 
       # ============================================================
       # 10. Download secret-stuff-v6
       # ============================================================
       - name: Download secret-stuff-v6
-        shell: powershell
-        run: |
-          git clone --depth 1 `
-            "https://github.com/Vexo-Sirramenboi/secret-stuff-v6.git" `
-            "build\games\secret-stuff-v6"
+        uses: actions/checkout@v4
+        with:
+          repository: Vexo-Sirramenboi/secret-stuff-v6
+          path: build/games/secret-stuff-v6
+          fetch-depth: 1
 
       # ============================================================
       # 11. Download secret-stuff-v7
       # ============================================================
       - name: Download secret-stuff-v7
-        shell: powershell
-        run: |
-          git clone --depth 1 `
-            "https://github.com/Vexo-Sirramenboi/secret-stuff-v7.git" `
-            "build\games\secret-stuff-v7"
+        uses: actions/checkout@v4
+        with:
+          repository: Vexo-Sirramenboi/secret-stuff-v7
+          path: build/games/secret-stuff-v7
+          fetch-depth: 1
 
       # ============================================================
       # 12. Download secret-stuff-v8
       # ============================================================
       - name: Download secret-stuff-v8
-        shell: powershell
-        run: |
-          git clone --depth 1 `
-            "https://github.com/Vexo-Sirramenboi/secret-stuff-v8.git" `
-            "build\games\secret-stuff-v8"
+        uses: actions/checkout@v4
+        with:
+          repository: Vexo-Sirramenboi/secret-stuff-v8
+          path: build/games/secret-stuff-v8
+          fetch-depth: 1
 
       # ============================================================
       # 13. Download secret-stuff-v9
       # ============================================================
       - name: Download secret-stuff-v9
-        shell: powershell
-        run: |
-          git clone --depth 1 `
-            "https://github.com/Vexo-Sirramenboi/secret-stuff-v9.git" `
-            "build\games\secret-stuff-v9"
+        uses: actions/checkout@v4
+        with:
+          repository: Vexo-Sirramenboi/secret-stuff-v9
+          path: build/games/secret-stuff-v9
+          fetch-depth: 1
 
       # ============================================================
       # 14. Download secret-stuff-v10
       # ============================================================
       - name: Download secret-stuff-v10
-        shell: powershell
-        run: |
-          git clone --depth 1 `
-            "https://github.com/Vexo-Sirramenboi/secret-stuff-v10.git" `
-            "build\games\secret-stuff-v10"
+        uses: actions/checkout@v4
+        with:
+          repository: Vexo-Sirramenboi/secret-stuff-v10
+          path: build/games/secret-stuff-v10
+          fetch-depth: 1
 
       # ============================================================
       # 15. Download secret-stuff-v11
       # ============================================================
       - name: Download secret-stuff-v11
-        shell: powershell
-        run: |
-          git clone --depth 1 `
-            "https://github.com/Vexo-Sirramenboi/secret-stuff-v11.git" `
-            "build\games\secret-stuff-v11"
+        uses: actions/checkout@v4
+        with:
+          repository: Vexo-Sirramenboi/secret-stuff-v11
+          path: build/games/secret-stuff-v11
+          fetch-depth: 1
 
       # ============================================================
       # 16. Download secret-stuff-v12
       # ============================================================
       - name: Download secret-stuff-v12
-        shell: powershell
-        run: |
-          git clone --depth 1 `
-            "https://github.com/Vexo-Sirramenboi/secret-stuff-v12.git" `
-            "build\games\secret-stuff-v12"
+        uses: actions/checkout@v4
+        with:
+          repository: Vexo-Sirramenboi/secret-stuff-v12
+          path: build/games/secret-stuff-v12
+          fetch-depth: 1
 
       # ============================================================
       # 17. Download secret-stuff-v13
       # ============================================================
       - name: Download secret-stuff-v13
-        shell: powershell
-        run: |
-          git clone --depth 1 `
-            "https://github.com/Vexo-Sirramenboi/secret-stuff-v13.git" `
-            "build\games\secret-stuff-v13"
+        uses: actions/checkout@v4
+        with:
+          repository: Vexo-Sirramenboi/secret-stuff-v13
+          path: build/games/secret-stuff-v13
+          fetch-depth: 1
 
       # ============================================================
-      # 18. Remove Git metadata
+      # 18. Remove .git folders from downloaded games
       # ============================================================
       - name: Remove Git metadata
         shell: powershell
         run: |
-          Get-ChildItem "build" -Directory -Recurse -Force |
-            Where-Object { $_.Name -eq ".git" } |
+          Get-ChildItem "build\games" -Directory -Recurse -Force |
+            Where-Object {
+              $_.Name -eq ".git"
+            } |
             Remove-Item -Recurse -Force
 
       # ============================================================
       # 19. Verify all 13 repositories
       # ============================================================
-      - name: Verify downloaded repositories
+      - name: Verify all game repositories
         shell: powershell
         run: |
           $repos = @(
-            "secret-stuff-",
+            "secret-stuff",
             "secret-stuff-v2",
             "secret-stuff-v3",
             "secret-stuff-v4",
@@ -238,19 +243,14 @@ jobs:
               exit 1
             }
 
-            Write-Host "Found: $repo"
+            Write-Host "OK: $repo"
           }
 
           Write-Host ""
-          Write-Host "All 13 repositories downloaded successfully."
+          Write-Host "All 13 repositories were downloaded successfully."
 
       # ============================================================
-      # 20. Prepare desktop launcher
-      #
-      # This modifies ONLY the BUILD COPY of index.html.
-      # Your actual GitHub file is not changed.
-      #
-      # Online GitHub Pages URLs are changed to local /games/ paths.
+      # 20. Change launcher links ONLY in the build copy
       # ============================================================
       - name: Prepare desktop launcher
         shell: powershell
@@ -265,37 +265,89 @@ jobs:
           $html = Get-Content $index -Raw
 
           $replacements = @{
-            "https://vexo-sirramenboi.github.io/secret-stuff-v10/" = "/games/secret-stuff-v10/"
-            "https://Vexo-Sirramenboi.github.io/secret-stuff-v10/" = "/games/secret-stuff-v10/"
+            "https://vexo-sirramenboi.github.io/secret-stuff/" =
+              "/games/secret-stuff/"
 
-            "https://vexo-sirramenboi.github.io/secret-stuff-v11/" = "/games/secret-stuff-v11/"
-            "https://Vexo-Sirramenboi.github.io/secret-stuff-v11/" = "/games/secret-stuff-v11/"
+            "https://Vexo-Sirramenboi.github.io/secret-stuff/" =
+              "/games/secret-stuff/"
 
-            "https://vexo-sirramenboi.github.io/secret-stuff-v12/" = "/games/secret-stuff-v12/"
-            "https://Vexo-Sirramenboi.github.io/secret-stuff-v12/" = "/games/secret-stuff-v12/"
+            "https://vexo-sirramenboi.github.io/secret-stuff-v2/" =
+              "/games/secret-stuff-v2/"
 
-            "https://vexo-sirramenboi.github.io/secret-stuff-v13/" = "/games/secret-stuff-v13/"
-            "https://Vexo-Sirramenboi.github.io/secret-stuff-v13/" = "/games/secret-stuff-v13/"
+            "https://Vexo-Sirramenboi.github.io/secret-stuff-v2/" =
+              "/games/secret-stuff-v2/"
 
-            "https://vexo-sirramenboi.github.io/secret-stuff/" = "/games/secret-stuff-/"
-            "https://Vexo-Sirramenboi.github.io/secret-stuff/" = "/games/secret-stuff-/"
+            "https://vexo-sirramenboi.github.io/secret-stuff-v3/" =
+              "/games/secret-stuff-v3/"
 
-            "https://vexo-sirramenboi.github.io/secret-stuff-v6/" = "/games/secret-stuff-v6/"
-            "https://Vexo-Sirramenboi.github.io/secret-stuff-v6/" = "/games/secret-stuff-v6/"
+            "https://Vexo-Sirramenboi.github.io/secret-stuff-v3/" =
+              "/games/secret-stuff-v3/"
 
-            "https://vexo-sirramenboi.github.io/secret-stuff-v4/" = "/games/secret-stuff-v4/"
-            "https://Vexo-Sirramenboi.github.io/secret-stuff-v4/" = "/games/secret-stuff-v4/"
+            "https://vexo-sirramenboi.github.io/secret-stuff-v4/" =
+              "/games/secret-stuff-v4/"
 
-            "https://vexo-sirramenboi.github.io/secret-stuff-v7/" = "/games/secret-stuff-v7/"
-            "https://Vexo-Sirramenboi.github.io/secret-stuff-v7/" = "/games/secret-stuff-v7/"
+            "https://Vexo-Sirramenboi.github.io/secret-stuff-v4/" =
+              "/games/secret-stuff-v4/"
 
-            "https://vexo-sirramenboi.github.io/secret-stuff-v5/" = "/games/secret-stuff-v5/"
-            "https://Vexo-Sirramenboi.github.io/secret-stuff-v5/" = "/games/secret-stuff-v5/"
+            "https://vexo-sirramenboi.github.io/secret-stuff-v5/" =
+              "/games/secret-stuff-v5/"
 
-            "https://vexo-sirramenboi.github.io/secret-stuff-v3/" = "/games/secret-stuff-v3/"
-            "https://Vexo-Sirramenboi.github.io/secret-stuff-v3/" = "/games/secret-stuff-v3/"
+            "https://Vexo-Sirramenboi.github.io/secret-stuff-v5/" =
+              "/games/secret-stuff-v5/"
 
-            "https://vexo-sirramenboi.github.io/secret-stuff-v8" = "/games/secret-stuff-v8/"
+            "https://vexo-sirramenboi.github.io/secret-stuff-v6/" =
+              "/games/secret-stuff-v6/"
+
+            "https://Vexo-Sirramenboi.github.io/secret-stuff-v6/" =
+              "/games/secret-stuff-v6/"
+
+            "https://vexo-sirramenboi.github.io/secret-stuff-v7/" =
+              "/games/secret-stuff-v7/"
+
+            "https://Vexo-Sirramenboi.github.io/secret-stuff-v7/" =
+              "/games/secret-stuff-v7/"
+
+            "https://vexo-sirramenboi.github.io/secret-stuff-v8" =
+              "/games/secret-stuff-v8/"
+
+            "https://vexo-sirramenboi.github.io/secret-stuff-v8/" =
+              "/games/secret-stuff-v8/"
+
+            "https://Vexo-Sirramenboi.github.io/secret-stuff-v8" =
+              "/games/secret-stuff-v8/"
+
+            "https://Vexo-Sirramenboi.github.io/secret-stuff-v8/" =
+              "/games/secret-stuff-v8/"
+
+            "https://vexo-sirramenboi.github.io/secret-stuff-v9/" =
+              "/games/secret-stuff-v9/"
+
+            "https://Vexo-Sirramenboi.github.io/secret-stuff-v9/" =
+              "/games/secret-stuff-v9/"
+
+            "https://vexo-sirramenboi.github.io/secret-stuff-v10/" =
+              "/games/secret-stuff-v10/"
+
+            "https://Vexo-Sirramenboi.github.io/secret-stuff-v10/" =
+              "/games/secret-stuff-v10/"
+
+            "https://vexo-sirramenboi.github.io/secret-stuff-v11/" =
+              "/games/secret-stuff-v11/"
+
+            "https://Vexo-Sirramenboi.github.io/secret-stuff-v11/" =
+              "/games/secret-stuff-v11/"
+
+            "https://vexo-sirramenboi.github.io/secret-stuff-v12/" =
+              "/games/secret-stuff-v12/"
+
+            "https://Vexo-Sirramenboi.github.io/secret-stuff-v12/" =
+              "/games/secret-stuff-v12/"
+
+            "https://vexo-sirramenboi.github.io/secret-stuff-v13/" =
+              "/games/secret-stuff-v13/"
+
+            "https://Vexo-Sirramenboi.github.io/secret-stuff-v13/" =
+              "/games/secret-stuff-v13/"
           }
 
           foreach ($old in $replacements.Keys) {
@@ -310,10 +362,10 @@ jobs:
             -Value $html `
             -Encoding UTF8
 
-          Write-Host "Desktop launcher prepared."
+          Write-Host "Desktop launcher links prepared."
 
       # ============================================================
-      # 21. Create .NET desktop project
+      # 21. Create .NET project
       # ============================================================
       - name: Create desktop project
         shell: powershell
@@ -334,20 +386,22 @@ jobs:
 
               <AssemblyName>Launcher-Le-Eaglercraft</AssemblyName>
               <RootNamespace>LauncherLeEaglercraft</RootNamespace>
-
-              <EnableDefaultApplicationIcon>false</EnableDefaultApplicationIcon>
             </PropertyGroup>
 
             <ItemGroup>
-              <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3485.11" />
-              <EmbeddedResource Include="launcher.zip" />
+              <PackageReference
+                Include="Microsoft.Web.WebView2"
+                Version="1.0.3485.11" />
+
+              <EmbeddedResource
+                Include="launcher.zip" />
             </ItemGroup>
 
           </Project>
           '@ | Set-Content "desktop\Launcher-Le-Eaglercraft.csproj"
 
       # ============================================================
-      # 22. Package launcher + all 13 repositories
+      # 22. Package launcher + games
       # ============================================================
       - name: Package launcher resources
         shell: powershell
@@ -362,12 +416,10 @@ jobs:
             exit 1
           }
 
-          $size = (Get-Item "desktop\launcher.zip").Length
-
-          Write-Host "Embedded launcher package size: $size bytes"
+          Write-Host "Launcher package created."
 
       # ============================================================
-      # 23. Create desktop launcher source
+      # 23. Create C# launcher
       # ============================================================
       - name: Create desktop launcher source
         shell: powershell
@@ -377,6 +429,7 @@ jobs:
           using System.IO;
           using System.IO.Compression;
           using System.Reflection;
+          using System.Threading.Tasks;
           using System.Windows.Forms;
           using Microsoft.Web.WebView2.Core;
           using Microsoft.Web.WebView2.WinForms;
@@ -390,21 +443,29 @@ jobs:
                   {
                       ApplicationConfiguration.Initialize();
 
-                      string appDirectory = Path.Combine(
-                          Environment.GetFolderPath(
-                              Environment.SpecialFolder.LocalApplicationData
-                          ),
-                          "Launcher Le Eaglercraft"
-                      );
+                      string appDirectory =
+                          Path.Combine(
+                              Environment.GetFolderPath(
+                                  Environment.SpecialFolder.LocalApplicationData
+                              ),
+                              "Launcher Le Eaglercraft"
+                          );
 
                       string launcherDirectory =
-                          Path.Combine(appDirectory, "launcher");
+                          Path.Combine(
+                              appDirectory,
+                              "launcher"
+                          );
 
-                      Directory.CreateDirectory(appDirectory);
+                      Directory.CreateDirectory(
+                          appDirectory
+                      );
 
                       try
                       {
-                          ExtractLauncher(launcherDirectory);
+                          ExtractLauncher(
+                              launcherDirectory
+                          );
 
                           Application.Run(
                               new LauncherForm(
@@ -512,7 +573,9 @@ jobs:
                               Dock = DockStyle.Fill
                           };
 
-                      Controls.Add(webView);
+                      Controls.Add(
+                          webView
+                      );
 
                       Load += async (_, _) =>
                       {
@@ -528,11 +591,12 @@ jobs:
                   {
                       await webView.EnsureCoreWebView2Async();
 
-                      webView.CoreWebView2.SetVirtualHostNameToFolderMapping(
-                          "launcher.local",
-                          launcherDirectory,
-                          CoreWebView2HostResourceAccessKind.Allow
-                      );
+                      webView.CoreWebView2
+                          .SetVirtualHostNameToFolderMapping(
+                              "launcher.local",
+                              launcherDirectory,
+                              CoreWebView2HostResourceAccessKind.Allow
+                          );
 
                       webView.CoreWebView2.Navigate(
                           "https://launcher.local/index.html"
@@ -543,7 +607,7 @@ jobs:
           '@ | Set-Content "desktop\Program.cs"
 
       # ============================================================
-      # 24. Build the SINGLE Windows EXE
+      # 24. Build single EXE
       # ============================================================
       - name: Build single-file EXE
         shell: powershell
@@ -576,16 +640,15 @@ jobs:
           Write-Host "============================================"
           Write-Host " BUILD SUCCESSFUL"
           Write-Host "============================================"
-          Write-Host "Name: $($file.Name)"
+          Write-Host "File: $($file.Name)"
           Write-Host "Size: $($file.Length) bytes"
-          Write-Host "Path: $($file.FullName)"
           Write-Host "============================================"
           Write-Host ""
 
       # ============================================================
       # 26. Upload ONLY the EXE
       # ============================================================
-      - name: Upload Launcher EXE
+      - name: Upload EXE
         uses: actions/upload-artifact@v4
         with:
           name: Launcher-Le-Eaglercraft-Windows
