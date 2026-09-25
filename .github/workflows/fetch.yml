@@ -17,7 +17,7 @@ jobs:
     steps:
 
       # ============================================================
-      # 1. Checkout YOUR launcher-le-eaglercraft repository
+      # 1. Checkout YOUR launcher repository
       # ============================================================
       - name: Checkout Launcher Le Eaglercraft
         uses: actions/checkout@v4
@@ -25,7 +25,7 @@ jobs:
           path: launcher
 
       # ============================================================
-      # 2. Install .NET
+      # 2. Install .NET 8
       # ============================================================
       - name: Setup .NET 8
         uses: actions/setup-dotnet@v4
@@ -42,28 +42,31 @@ jobs:
           New-Item -ItemType Directory -Force -Path "build\launcher"
           New-Item -ItemType Directory -Force -Path "build\games"
           New-Item -ItemType Directory -Force -Path "desktop"
+          New-Item -ItemType Directory -Force -Path "dist"
 
       # ============================================================
       # 4. Copy EVERYTHING from your launcher repository
       #
-      # This preserves your:
-      # index.html
-      # CSS
-      # JavaScript
-      # favicon
-      # manifest
-      # service worker
-      # images
-      # other assets
+      # Uses the actual files already in launcher-le-eaglercraft.
+      #
+      # Robocopy exit codes 0-7 are successful/status results.
+      # Only 8+ means an actual copy failure.
       # ============================================================
       - name: Copy existing launcher
         shell: powershell
         run: |
           robocopy "launcher" "build\launcher" /E /XD ".git" ".github" /XF ".gitignore"
 
-          if ($LASTEXITCODE -gt 7) {
-            exit $LASTEXITCODE
+          $code = $LASTEXITCODE
+
+          Write-Host "Robocopy exit code: $code"
+
+          if ($code -le 7) {
+            exit 0
           }
+
+          Write-Error "Robocopy failed with exit code $code"
+          exit $code
 
       # ============================================================
       # 5. Download secret-stuff-
@@ -206,11 +209,48 @@ jobs:
             Remove-Item -Recurse -Force
 
       # ============================================================
-      # 19. Create a local copy of index.html
+      # 19. Verify all 13 repositories
+      # ============================================================
+      - name: Verify downloaded repositories
+        shell: powershell
+        run: |
+          $repos = @(
+            "secret-stuff-",
+            "secret-stuff-v2",
+            "secret-stuff-v3",
+            "secret-stuff-v4",
+            "secret-stuff-v5",
+            "secret-stuff-v6",
+            "secret-stuff-v7",
+            "secret-stuff-v8",
+            "secret-stuff-v9",
+            "secret-stuff-v10",
+            "secret-stuff-v11",
+            "secret-stuff-v12",
+            "secret-stuff-v13"
+          )
+
+          foreach ($repo in $repos) {
+            $path = "build\games\$repo"
+
+            if (-not (Test-Path $path)) {
+              Write-Error "Missing repository: $repo"
+              exit 1
+            }
+
+            Write-Host "Found: $repo"
+          }
+
+          Write-Host ""
+          Write-Host "All 13 repositories downloaded successfully."
+
+      # ============================================================
+      # 20. Prepare desktop launcher
       #
-      # The existing launcher remains intact.
-      # We only create the desktop-build copy so the EXE can
-      # reference the downloaded game repositories locally.
+      # This modifies ONLY the BUILD COPY of index.html.
+      # Your actual GitHub file is not changed.
+      #
+      # Online GitHub Pages URLs are changed to local /games/ paths.
       # ============================================================
       - name: Prepare desktop launcher
         shell: powershell
@@ -218,7 +258,7 @@ jobs:
           $index = "build\launcher\index.html"
 
           if (-not (Test-Path $index)) {
-            Write-Error "index.html was not found in launcher-le-eaglercraft."
+            Write-Error "index.html was not found."
             exit 1
           }
 
@@ -266,12 +306,14 @@ jobs:
           }
 
           Set-Content `
-            -Path "build\launcher\index.html" `
+            -Path $index `
             -Value $html `
             -Encoding UTF8
 
+          Write-Host "Desktop launcher prepared."
+
       # ============================================================
-      # 20. Create .NET desktop project
+      # 21. Create .NET desktop project
       # ============================================================
       - name: Create desktop project
         shell: powershell
@@ -305,7 +347,7 @@ jobs:
           '@ | Set-Content "desktop\Launcher-Le-Eaglercraft.csproj"
 
       # ============================================================
-      # 21. Package YOUR launcher + all 13 repos
+      # 22. Package launcher + all 13 repositories
       # ============================================================
       - name: Package launcher resources
         shell: powershell
@@ -315,8 +357,17 @@ jobs:
             -DestinationPath "desktop\launcher.zip" `
             -CompressionLevel Optimal
 
+          if (-not (Test-Path "desktop\launcher.zip")) {
+            Write-Error "launcher.zip was not created."
+            exit 1
+          }
+
+          $size = (Get-Item "desktop\launcher.zip").Length
+
+          Write-Host "Embedded launcher package size: $size bytes"
+
       # ============================================================
-      # 22. Create desktop launcher source
+      # 23. Create desktop launcher source
       # ============================================================
       - name: Create desktop launcher source
         shell: powershell
@@ -353,9 +404,7 @@ jobs:
 
                       try
                       {
-                          ExtractLauncher(
-                              launcherDirectory
-                          );
+                          ExtractLauncher(launcherDirectory);
 
                           Application.Run(
                               new LauncherForm(
@@ -448,6 +497,12 @@ jobs:
                       Width = 1280;
                       Height = 800;
 
+                      MinimumSize =
+                          new System.Drawing.Size(
+                              900,
+                              600
+                          );
+
                       StartPosition =
                           FormStartPosition.CenterScreen;
 
@@ -488,9 +543,9 @@ jobs:
           '@ | Set-Content "desktop\Program.cs"
 
       # ============================================================
-      # 23. Publish ONE EXE
+      # 24. Build the SINGLE Windows EXE
       # ============================================================
-      - name: Build single-file Windows EXE
+      - name: Build single-file EXE
         shell: powershell
         run: |
           dotnet publish `
@@ -503,7 +558,7 @@ jobs:
             --output "dist"
 
       # ============================================================
-      # 24. Verify the output
+      # 25. Verify EXE
       # ============================================================
       - name: Verify EXE
         shell: powershell
@@ -511,21 +566,24 @@ jobs:
           $exe = "dist\Launcher-Le-Eaglercraft.exe"
 
           if (-not (Test-Path $exe)) {
-            Write-Error "EXE was not created."
+            Write-Error "Launcher-Le-Eaglercraft.exe was not created."
             exit 1
           }
 
-          Write-Host ""
-          Write-Host "========================================"
-          Write-Host "Launcher EXE successfully created"
-          Write-Host "========================================"
-          Write-Host ""
+          $file = Get-Item $exe
 
-          Get-Item $exe |
-            Select-Object Name, Length, FullName
+          Write-Host ""
+          Write-Host "============================================"
+          Write-Host " BUILD SUCCESSFUL"
+          Write-Host "============================================"
+          Write-Host "Name: $($file.Name)"
+          Write-Host "Size: $($file.Length) bytes"
+          Write-Host "Path: $($file.FullName)"
+          Write-Host "============================================"
+          Write-Host ""
 
       # ============================================================
-      # 25. Upload the SINGLE EXE
+      # 26. Upload ONLY the EXE
       # ============================================================
       - name: Upload Launcher EXE
         uses: actions/upload-artifact@v4
