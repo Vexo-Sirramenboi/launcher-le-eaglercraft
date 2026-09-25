@@ -25,7 +25,7 @@ jobs:
           path: launcher
 
       # ============================================================
-      # 2. Install .NET 8
+      # 2. Setup .NET
       # ============================================================
       - name: Setup .NET 8
         uses: actions/setup-dotnet@v4
@@ -45,10 +45,7 @@ jobs:
           New-Item -ItemType Directory -Force -Path "dist"
 
       # ============================================================
-      # 4. Copy YOUR existing launcher files
-      #
-      # No Robocopy.
-      # No modification to your actual repository files.
+      # 4. Copy existing launcher files
       # ============================================================
       - name: Copy existing launcher
         shell: powershell
@@ -65,7 +62,7 @@ jobs:
             Copy-Item -Destination $destination -Recurse -Force
 
           Write-Host ""
-          Write-Host "Existing launcher files copied:"
+          Write-Host "Launcher files copied:"
           Get-ChildItem -Path $destination -Recurse -File |
             ForEach-Object {
               Write-Host $_.FullName
@@ -202,7 +199,7 @@ jobs:
           fetch-depth: 1
 
       # ============================================================
-      # 18. Remove .git folders from downloaded games
+      # 18. Remove Git metadata
       # ============================================================
       - name: Remove Git metadata
         shell: powershell
@@ -214,9 +211,9 @@ jobs:
             Remove-Item -Recurse -Force
 
       # ============================================================
-      # 19. Verify all 13 repositories
+      # 19. Verify all repositories
       # ============================================================
-      - name: Verify all game repositories
+      - name: Verify game repositories
         shell: powershell
         run: |
           $repos = @(
@@ -247,10 +244,13 @@ jobs:
           }
 
           Write-Host ""
-          Write-Host "All 13 repositories were downloaded successfully."
+          Write-Host "All 13 repositories downloaded successfully."
 
       # ============================================================
-      # 20. Change launcher links ONLY in the build copy
+      # 20. Prepare desktop launcher
+      #
+      # Instead of a PowerShell hash table, simply replace
+      # every GitHub Pages URL with its local /games/ location.
       # ============================================================
       - name: Prepare desktop launcher
         shell: powershell
@@ -264,97 +264,42 @@ jobs:
 
           $html = Get-Content $index -Raw
 
-          $replacements = @{
-            "https://vexo-sirramenboi.github.io/secret-stuff/" =
-              "/games/secret-stuff/"
+          $base = "https://vexo-sirramenboi.github.io"
 
-            "https://Vexo-Sirramenboi.github.io/secret-stuff/" =
-              "/games/secret-stuff/"
+          $repos = @(
+            "secret-stuff",
+            "secret-stuff-v2",
+            "secret-stuff-v3",
+            "secret-stuff-v4",
+            "secret-stuff-v5",
+            "secret-stuff-v6",
+            "secret-stuff-v7",
+            "secret-stuff-v8",
+            "secret-stuff-v9",
+            "secret-stuff-v10",
+            "secret-stuff-v11",
+            "secret-stuff-v12",
+            "secret-stuff-v13"
+          )
 
-            "https://vexo-sirramenboi.github.io/secret-stuff-v2/" =
-              "/games/secret-stuff-v2/"
+          foreach ($repo in $repos) {
 
-            "https://Vexo-Sirramenboi.github.io/secret-stuff-v2/" =
-              "/games/secret-stuff-v2/"
+            $remoteWithSlash = "$base/$repo/"
+            $remoteWithoutSlash = "$base/$repo"
 
-            "https://vexo-sirramenboi.github.io/secret-stuff-v3/" =
-              "/games/secret-stuff-v3/"
+            $local = "/games/$repo/"
 
-            "https://Vexo-Sirramenboi.github.io/secret-stuff-v3/" =
-              "/games/secret-stuff-v3/"
-
-            "https://vexo-sirramenboi.github.io/secret-stuff-v4/" =
-              "/games/secret-stuff-v4/"
-
-            "https://Vexo-Sirramenboi.github.io/secret-stuff-v4/" =
-              "/games/secret-stuff-v4/"
-
-            "https://vexo-sirramenboi.github.io/secret-stuff-v5/" =
-              "/games/secret-stuff-v5/"
-
-            "https://Vexo-Sirramenboi.github.io/secret-stuff-v5/" =
-              "/games/secret-stuff-v5/"
-
-            "https://vexo-sirramenboi.github.io/secret-stuff-v6/" =
-              "/games/secret-stuff-v6/"
-
-            "https://Vexo-Sirramenboi.github.io/secret-stuff-v6/" =
-              "/games/secret-stuff-v6/"
-
-            "https://vexo-sirramenboi.github.io/secret-stuff-v7/" =
-              "/games/secret-stuff-v7/"
-
-            "https://Vexo-Sirramenboi.github.io/secret-stuff-v7/" =
-              "/games/secret-stuff-v7/"
-
-            "https://vexo-sirramenboi.github.io/secret-stuff-v8" =
-              "/games/secret-stuff-v8/"
-
-            "https://vexo-sirramenboi.github.io/secret-stuff-v8/" =
-              "/games/secret-stuff-v8/"
-
-            "https://Vexo-Sirramenboi.github.io/secret-stuff-v8" =
-              "/games/secret-stuff-v8/"
-
-            "https://Vexo-Sirramenboi.github.io/secret-stuff-v8/" =
-              "/games/secret-stuff-v8/"
-
-            "https://vexo-sirramenboi.github.io/secret-stuff-v9/" =
-              "/games/secret-stuff-v9/"
-
-            "https://Vexo-Sirramenboi.github.io/secret-stuff-v9/" =
-              "/games/secret-stuff-v9/"
-
-            "https://vexo-sirramenboi.github.io/secret-stuff-v10/" =
-              "/games/secret-stuff-v10/"
-
-            "https://Vexo-Sirramenboi.github.io/secret-stuff-v10/" =
-              "/games/secret-stuff-v10/"
-
-            "https://vexo-sirramenboi.github.io/secret-stuff-v11/" =
-              "/games/secret-stuff-v11/"
-
-            "https://Vexo-Sirramenboi.github.io/secret-stuff-v11/" =
-              "/games/secret-stuff-v11/"
-
-            "https://vexo-sirramenboi.github.io/secret-stuff-v12/" =
-              "/games/secret-stuff-v12/"
-
-            "https://Vexo-Sirramenboi.github.io/secret-stuff-v12/" =
-              "/games/secret-stuff-v12/"
-
-            "https://vexo-sirramenboi.github.io/secret-stuff-v13/" =
-              "/games/secret-stuff-v13/"
-
-            "https://Vexo-Sirramenboi.github.io/secret-stuff-v13/" =
-              "/games/secret-stuff-v13/"
-          }
-
-          foreach ($old in $replacements.Keys) {
             $html = $html.Replace(
-              $old,
-              $replacements[$old]
+              $remoteWithSlash,
+              $local
             )
+
+            $html = $html.Replace(
+              $remoteWithoutSlash,
+              $local
+            )
+
+            Write-Host "Prepared: $repo"
           }
 
           Set-Content `
@@ -362,10 +307,31 @@ jobs:
             -Value $html `
             -Encoding UTF8
 
-          Write-Host "Desktop launcher links prepared."
+          Write-Host ""
+          Write-Host "Desktop launcher links prepared successfully."
 
       # ============================================================
-      # 21. Create .NET project
+      # 21. Show final launcher files
+      # ============================================================
+      - name: Verify launcher payload
+        shell: powershell
+        run: |
+          Write-Host ""
+          Write-Host "Launcher:"
+          Get-ChildItem "build\launcher" -File |
+            ForEach-Object {
+              Write-Host " - $($_.Name)"
+            }
+
+          Write-Host ""
+          Write-Host "Games:"
+          Get-ChildItem "build\games" -Directory |
+            ForEach-Object {
+              Write-Host " - $($_.Name)"
+            }
+
+      # ============================================================
+      # 22. Create .NET project
       # ============================================================
       - name: Create desktop project
         shell: powershell
@@ -401,7 +367,7 @@ jobs:
           '@ | Set-Content "desktop\Launcher-Le-Eaglercraft.csproj"
 
       # ============================================================
-      # 22. Package launcher + games
+      # 23. Package launcher and games
       # ============================================================
       - name: Package launcher resources
         shell: powershell
@@ -419,7 +385,7 @@ jobs:
           Write-Host "Launcher package created."
 
       # ============================================================
-      # 23. Create C# launcher
+      # 24. Create C# launcher
       # ============================================================
       - name: Create desktop launcher source
         shell: powershell
@@ -607,7 +573,7 @@ jobs:
           '@ | Set-Content "desktop\Program.cs"
 
       # ============================================================
-      # 24. Build single EXE
+      # 25. Build single-file EXE
       # ============================================================
       - name: Build single-file EXE
         shell: powershell
@@ -622,7 +588,7 @@ jobs:
             --output "dist"
 
       # ============================================================
-      # 25. Verify EXE
+      # 26. Verify EXE
       # ============================================================
       - name: Verify EXE
         shell: powershell
@@ -643,10 +609,9 @@ jobs:
           Write-Host "File: $($file.Name)"
           Write-Host "Size: $($file.Length) bytes"
           Write-Host "============================================"
-          Write-Host ""
 
       # ============================================================
-      # 26. Upload ONLY the EXE
+      # 27. Upload ONLY the EXE
       # ============================================================
       - name: Upload EXE
         uses: actions/upload-artifact@v4
