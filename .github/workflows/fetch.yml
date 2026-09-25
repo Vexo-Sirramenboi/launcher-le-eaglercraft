@@ -16,29 +16,15 @@ jobs:
 
     steps:
 
-      # ==========================================
-      # CHECKOUT YOUR ACTUAL LAUNCHER REPOSITORY
-      # ==========================================
-
       - name: Checkout Launcher
         uses: actions/checkout@v4
         with:
           path: launcher
 
-
-      # ==========================================
-      # SETUP .NET
-      # ==========================================
-
-      - name: Setup .NET 8
+      - name: Setup .NET 10
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
-
-
-      # ==========================================
-      # CREATE BUILD DIRECTORIES
-      # ==========================================
+          dotnet-version: '10.0.x'
 
       - name: Create build directories
         shell: powershell
@@ -49,11 +35,6 @@ jobs:
           New-Item -ItemType Directory -Force -Path "build\payload"
           New-Item -ItemType Directory -Force -Path "desktop"
           New-Item -ItemType Directory -Force -Path "dist"
-
-
-      # ==========================================
-      # COPY EXISTING LAUNCHER
-      # ==========================================
 
       - name: Copy existing launcher
         shell: powershell
@@ -67,25 +48,14 @@ jobs:
               $_.Name -ne ".github" -and
               $_.Name -ne ".gitignore"
             } |
-            Copy-Item `
-              -Destination $destination `
-              -Recurse `
-              -Force
+            Copy-Item -Destination $destination -Recurse -Force
 
           Write-Host ""
           Write-Host "Launcher files copied:"
-          Get-ChildItem `
-            -Path $destination `
-            -Recurse `
-            -File |
+          Get-ChildItem -Path $destination -Recurse -File |
             ForEach-Object {
               Write-Host $_.FullName
             }
-
-
-      # ==========================================
-      # DOWNLOAD ALL 13 GAME REPOSITORIES
-      # ==========================================
 
       - name: Download secret-stuff
         uses: actions/checkout@v4
@@ -178,32 +148,14 @@ jobs:
           path: build/games/secret-stuff-v13
           fetch-depth: 1
 
-
-      # ==========================================
-      # REMOVE GIT DATA
-      # ==========================================
-
       - name: Remove Git metadata
         shell: powershell
         run: |
-          Get-ChildItem `
-            "build\games" `
-            -Directory `
-            -Recurse `
-            -Force |
+          Get-ChildItem "build\games" -Directory -Recurse -Force |
             Where-Object {
               $_.Name -eq ".git"
             } |
-            Remove-Item `
-              -Recurse `
-              -Force
-
-          Write-Host "Git metadata removed."
-
-
-      # ==========================================
-      # VERIFY ALL 13 REPOSITORIES
-      # ==========================================
+            Remove-Item -Recurse -Force
 
       - name: Verify game repositories
         shell: powershell
@@ -225,7 +177,6 @@ jobs:
           )
 
           foreach ($repo in $repos) {
-
             $path = "build\games\$repo"
 
             if (-not (Test-Path $path)) {
@@ -238,11 +189,6 @@ jobs:
 
           Write-Host ""
           Write-Host "All 13 repositories downloaded successfully."
-
-
-      # ==========================================
-      # PREPARE LAUNCHER FOR DESKTOP
-      # ==========================================
 
       - name: Prepare desktop launcher
         shell: powershell
@@ -275,10 +221,8 @@ jobs:
           )
 
           foreach ($repo in $repos) {
-
             $remoteWithSlash = "$base/$repo/"
             $remoteWithoutSlash = "$base/$repo"
-
             $local = "/games/$repo/"
 
             $html = $html.Replace(
@@ -299,21 +243,9 @@ jobs:
             -Value $html `
             -Encoding UTF8
 
-          Write-Host ""
-          Write-Host "Desktop launcher links prepared successfully."
-
-
-      # ==========================================
-      # CREATE FINAL PAYLOAD
-      # ==========================================
-
       - name: Create desktop payload
         shell: powershell
         run: |
-
-          # Copy the actual launcher files directly
-          # into the payload root.
-
           Get-ChildItem `
             -Path "build\launcher" `
             -Force |
@@ -322,17 +254,11 @@ jobs:
               -Recurse `
               -Force
 
-
-          # Create games directory.
-
           New-Item `
             -ItemType Directory `
             -Force `
             -Path "build\payload\games" |
             Out-Null
-
-
-          # Copy all games.
 
           Get-ChildItem `
             -Path "build\games" `
@@ -342,34 +268,17 @@ jobs:
               -Recurse `
               -Force
 
-
-          Write-Host ""
-          Write-Host "Payload created."
-
-
-          # Verify index.html is directly in root.
-
           if (-not (Test-Path "build\payload\index.html")) {
-            Write-Error "index.html is missing from payload root."
+            Write-Error "index.html is missing from payload."
             exit 1
           }
-
-          Write-Host "index.html found."
-
-
-          # Verify games directory.
 
           if (-not (Test-Path "build\payload\games")) {
             Write-Error "games directory is missing."
             exit 1
           }
 
-          Write-Host "games directory found."
-
-
-      # ==========================================
-      # CREATE .NET PROJECT
-      # ==========================================
+          Write-Host "Payload ready."
 
       - name: Create desktop project
         shell: powershell
@@ -378,71 +287,36 @@ jobs:
           <Project Sdk="Microsoft.NET.Sdk">
 
             <PropertyGroup>
-
               <OutputType>WinExe</OutputType>
+              <TargetFramework>net10.0-windows</TargetFramework>
+              <UseWindowsForms>true</UseWindowsForms>
 
-              <TargetFramework>
-                net8.0-windows
-              </TargetFramework>
+              <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+              <SelfContained>true</SelfContained>
 
-              <UseWindowsForms>
-                true
-              </UseWindowsForms>
+              <PublishSingleFile>true</PublishSingleFile>
+              <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 
-              <RuntimeIdentifier>
-                win-x64
-              </RuntimeIdentifier>
-
-              <SelfContained>
-                true
-              </SelfContained>
-
-              <PublishSingleFile>
-                true
-              </PublishSingleFile>
-
-              <IncludeNativeLibrariesForSelfExtract>
-                true
-              </IncludeNativeLibrariesForSelfExtract>
-
-              <AssemblyName>
-                Launcher-Le-Eaglercraft
-              </AssemblyName>
-
-              <RootNamespace>
-                LauncherLeEaglercraft
-              </RootNamespace>
-
+              <AssemblyName>Launcher-Le-Eaglercraft</AssemblyName>
+              <RootNamespace>LauncherLeEaglercraft</RootNamespace>
             </PropertyGroup>
 
             <ItemGroup>
-
               <PackageReference
                 Include="Microsoft.Web.WebView2"
                 Version="1.0.3485.11" />
 
               <EmbeddedResource
                 Include="launcher.zip" />
-
             </ItemGroup>
 
           </Project>
           '@ | Set-Content `
             "desktop\Launcher-Le-Eaglercraft.csproj"
 
-
-      # ==========================================
-      # INTERNAL PACKAGE
-      # ==========================================
-
       - name: Create internal launcher package
         shell: powershell
         run: |
-
-          # This ZIP is ONLY used internally.
-          # It gets embedded inside the EXE.
-          # It is NOT published as the final download.
-
           Compress-Archive `
             -Path "build\payload\*" `
             -DestinationPath "desktop\launcher.zip" `
@@ -453,13 +327,7 @@ jobs:
             exit 1
           }
 
-          Write-Host ""
           Write-Host "Internal launcher package created."
-
-
-      # ==========================================
-      # CREATE C# DESKTOP APP
-      # ==========================================
 
       - name: Create desktop launcher source
         shell: powershell
@@ -647,15 +515,9 @@ jobs:
           '@ | Set-Content `
             "desktop\Program.cs"
 
-
-      # ==========================================
-      # BUILD SINGLE EXE
-      # ==========================================
-
       - name: Build single-file EXE
         shell: powershell
         run: |
-
           dotnet publish `
             "desktop\Launcher-Le-Eaglercraft.csproj" `
             --configuration Release `
@@ -665,15 +527,9 @@ jobs:
             -p:IncludeNativeLibrariesForSelfExtract=true `
             --output "dist"
 
-
-      # ==========================================
-      # VERIFY ONLY EXE EXISTS
-      # ==========================================
-
       - name: Verify EXE
         shell: powershell
         run: |
-
           $exe = "dist\Launcher-Le-Eaglercraft.exe"
 
           if (-not (Test-Path $exe)) {
@@ -690,11 +546,6 @@ jobs:
           Write-Host "File: $($file.Name)"
           Write-Host "Size: $($file.Length) bytes"
           Write-Host "============================================"
-
-
-      # ==========================================
-      # CREATE GITHUB RELEASE
-      # ==========================================
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
