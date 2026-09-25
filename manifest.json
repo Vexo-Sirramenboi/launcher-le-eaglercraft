@@ -1,18 +1,21 @@
 {
   "name": "Launcher Le Eaglercraft",
   "short_name": "Eaglercraft",
+  "description": "A browser-based launcher for Eaglercraft and classic Minecraft versions.",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#996666",
-  "theme_color": "#996666",
+  "background_color": "#0b0b0d",
+  "theme_color": "#0b0b0d",
+  "orientation": "landscape",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "./icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icon-512.png",
+      "src": "./icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
