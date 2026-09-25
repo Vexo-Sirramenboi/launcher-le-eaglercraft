@@ -2,165 +2,207 @@ name: Build Launcher Le Eaglercraft EXE
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 permissions:
   contents: write
 
 jobs:
-  build-windows:
-    name: Build Windows EXE
+  build:
     runs-on: windows-latest
 
     steps:
 
-      - name: Checkout Launcher
+      # ============================================================
+      # 1. CHECK OUT THE LAUNCHER REPOSITORY
+      # ============================================================
+      - name: Checkout launcher
         uses: actions/checkout@v4
         with:
           path: launcher
 
+      # ============================================================
+      # 2. SET UP .NET
+      # ============================================================
       - name: Setup .NET 10
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
 
+      # ============================================================
+      # 3. CREATE BUILD DIRECTORIES
+      # ============================================================
       - name: Create build directories
-        shell: powershell
+        shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path "build"
-          New-Item -ItemType Directory -Force -Path "build\launcher"
-          New-Item -ItemType Directory -Force -Path "build\games"
-          New-Item -ItemType Directory -Force -Path "build\payload"
-          New-Item -ItemType Directory -Force -Path "desktop"
-          New-Item -ItemType Directory -Force -Path "dist"
+          New-Item -ItemType Directory -Force -Path build | Out-Null
+          New-Item -ItemType Directory -Force -Path build\launcher | Out-Null
+          New-Item -ItemType Directory -Force -Path build\games | Out-Null
+          New-Item -ItemType Directory -Force -Path build\payload | Out-Null
+          New-Item -ItemType Directory -Force -Path desktop | Out-Null
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
 
+      # ============================================================
+      # 4. COPY THE EXISTING LAUNCHER
+      # ============================================================
       - name: Copy existing launcher
-        shell: powershell
+        shell: pwsh
         run: |
-          $source = Join-Path $PWD "launcher"
-          $destination = Join-Path $PWD "build\launcher"
+          $source = "${{ github.workspace }}\launcher"
+          $destination = "${{ github.workspace }}\build\launcher"
 
-          Get-ChildItem -Path $source -Force |
+          Get-ChildItem -LiteralPath $source -Force |
             Where-Object {
               $_.Name -ne ".git" -and
-              $_.Name -ne ".github" -and
-              $_.Name -ne ".gitignore"
+              $_.Name -ne ".github"
             } |
             Copy-Item -Destination $destination -Recurse -Force
 
-          Write-Host ""
-          Write-Host "Launcher files copied:"
-          Get-ChildItem -Path $destination -Recurse -File |
-            ForEach-Object {
-              Write-Host $_.FullName
-            }
+          if (Test-Path "$destination\.git") {
+            Remove-Item "$destination\.git" -Recurse -Force
+          }
 
+          if (Test-Path "$destination\.github") {
+            Remove-Item "$destination\.github" -Recurse -Force
+          }
+
+          Write-Host "Existing launcher copied."
+
+      # ============================================================
+      # 5. DOWNLOAD GAME 1
+      # ============================================================
       - name: Download secret-stuff
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff
           path: build/games/secret-stuff
-          fetch-depth: 1
 
+      # ============================================================
+      # 6. DOWNLOAD GAME 2
+      # ============================================================
       - name: Download secret-stuff-v2
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v2
           path: build/games/secret-stuff-v2
-          fetch-depth: 1
 
+      # ============================================================
+      # 7. DOWNLOAD GAME 3
+      # ============================================================
       - name: Download secret-stuff-v3
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v3
           path: build/games/secret-stuff-v3
-          fetch-depth: 1
 
+      # ============================================================
+      # 8. DOWNLOAD GAME 4
+      # ============================================================
       - name: Download secret-stuff-v4
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v4
           path: build/games/secret-stuff-v4
-          fetch-depth: 1
 
+      # ============================================================
+      # 9. DOWNLOAD GAME 5
+      # ============================================================
       - name: Download secret-stuff-v5
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v5
           path: build/games/secret-stuff-v5
-          fetch-depth: 1
 
+      # ============================================================
+      # 10. DOWNLOAD GAME 6
+      # ============================================================
       - name: Download secret-stuff-v6
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v6
           path: build/games/secret-stuff-v6
-          fetch-depth: 1
 
+      # ============================================================
+      # 11. DOWNLOAD GAME 7
+      # ============================================================
       - name: Download secret-stuff-v7
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v7
           path: build/games/secret-stuff-v7
-          fetch-depth: 1
 
+      # ============================================================
+      # 12. DOWNLOAD GAME 8
+      # ============================================================
       - name: Download secret-stuff-v8
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v8
           path: build/games/secret-stuff-v8
-          fetch-depth: 1
 
+      # ============================================================
+      # 13. DOWNLOAD GAME 9
+      # ============================================================
       - name: Download secret-stuff-v9
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v9
           path: build/games/secret-stuff-v9
-          fetch-depth: 1
 
+      # ============================================================
+      # 14. DOWNLOAD GAME 10
+      # ============================================================
       - name: Download secret-stuff-v10
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v10
           path: build/games/secret-stuff-v10
-          fetch-depth: 1
 
+      # ============================================================
+      # 15. DOWNLOAD GAME 11
+      # ============================================================
       - name: Download secret-stuff-v11
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v11
           path: build/games/secret-stuff-v11
-          fetch-depth: 1
 
+      # ============================================================
+      # 16. DOWNLOAD GAME 12
+      # ============================================================
       - name: Download secret-stuff-v12
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v12
           path: build/games/secret-stuff-v12
-          fetch-depth: 1
 
+      # ============================================================
+      # 17. DOWNLOAD GAME 13
+      # ============================================================
       - name: Download secret-stuff-v13
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v13
           path: build/games/secret-stuff-v13
-          fetch-depth: 1
 
-      - name: Remove Git metadata
-        shell: powershell
+      # ============================================================
+      # 18. REMOVE GIT METADATA
+      # ============================================================
+      - name: Remove repository metadata
+        shell: pwsh
         run: |
-          Get-ChildItem "build\games" -Directory -Recurse -Force |
-            Where-Object {
-              $_.Name -eq ".git"
-            } |
+          Get-ChildItem -Path "${{ github.workspace }}\build" -Directory -Recurse -Force |
+            Where-Object { $_.Name -eq ".git" } |
             Remove-Item -Recurse -Force
 
-      - name: Verify game repositories
-        shell: powershell
+          Write-Host "Git metadata removed."
+
+      # ============================================================
+      # 19. VERIFY ALL 13 GAMES EXIST
+      # ============================================================
+      - name: Verify all game repositories
+        shell: pwsh
         run: |
-          $repos = @(
+          $games = @(
             "secret-stuff",
             "secret-stuff-v2",
             "secret-stuff-v3",
@@ -176,112 +218,171 @@ jobs:
             "secret-stuff-v13"
           )
 
-          foreach ($repo in $repos) {
-            $path = "build\games\$repo"
+          foreach ($game in $games) {
+            $path = "${{ github.workspace }}\build\games\$game"
 
             if (-not (Test-Path $path)) {
-              Write-Error "Missing repository: $repo"
-              exit 1
+              throw "Missing game repository: $game"
             }
 
-            Write-Host "OK: $repo"
+            Write-Host "FOUND: $game"
           }
 
           Write-Host ""
-          Write-Host "All 13 repositories downloaded successfully."
+          Write-Host "All 13 game repositories were downloaded successfully."
 
-      - name: Prepare desktop launcher
-        shell: powershell
+      # ============================================================
+      # 20. MAKE LAUNCHER POINT TO EMBEDDED GAMES
+      # ============================================================
+      - name: Rewrite launcher game URLs
+        shell: pwsh
         run: |
-          $index = "build\launcher\index.html"
+          $index = "${{ github.workspace }}\build\launcher\index.html"
 
           if (-not (Test-Path $index)) {
-            Write-Error "index.html was not found."
-            exit 1
+            throw "Launcher index.html was not found."
           }
 
-          $html = Get-Content $index -Raw
+          $html = Get-Content -LiteralPath $index -Raw
 
-          $base = "https://vexo-sirramenboi.github.io"
-
-          $repos = @(
-            "secret-stuff",
-            "secret-stuff-v2",
-            "secret-stuff-v3",
-            "secret-stuff-v4",
-            "secret-stuff-v5",
-            "secret-stuff-v6",
-            "secret-stuff-v7",
-            "secret-stuff-v8",
-            "secret-stuff-v9",
-            "secret-stuff-v10",
-            "secret-stuff-v11",
-            "secret-stuff-v12",
-            "secret-stuff-v13"
+          $replacements = @(
+            @{
+              Old = "https://vexo-sirramenboi.github.io/secret-stuff-v10/"
+              New = "/games/secret-stuff-v10/"
+            },
+            @{
+              Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v10/"
+              New = "/games/secret-stuff-v10/"
+            },
+            @{
+              Old = "https://vexo-sirramenboi.github.io/secret-stuff-v11/"
+              New = "/games/secret-stuff-v11/"
+            },
+            @{
+              Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v11/"
+              New = "/games/secret-stuff-v11/"
+            },
+            @{
+              Old = "https://vexo-sirramenboi.github.io/secret-stuff-v12/"
+              New = "/games/secret-stuff-v12/"
+            },
+            @{
+              Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v12/"
+              New = "/games/secret-stuff-v12/"
+            },
+            @{
+              Old = "https://vexo-sirramenboi.github.io/secret-stuff-v13/"
+              New = "/games/secret-stuff-v13/"
+            },
+            @{
+              Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v13/"
+              New = "/games/secret-stuff-v13/"
+            },
+            @{
+              Old = "https://vexo-sirramenboi.github.io/secret-stuff/"
+              New = "/games/secret-stuff/"
+            },
+            @{
+              Old = "https://Vexo-Sirramenboi.github.io/secret-stuff/"
+              New = "/games/secret-stuff/"
+            },
+            @{
+              Old = "https://vexo-sirramenboi.github.io/secret-stuff-v6/"
+              New = "/games/secret-stuff-v6/"
+            },
+            @{
+              Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v6/"
+              New = "/games/secret-stuff-v6/"
+            },
+            @{
+              Old = "https://vexo-sirramenboi.github.io/secret-stuff-v4/"
+              New = "/games/secret-stuff-v4/"
+            },
+            @{
+              Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v4/"
+              New = "/games/secret-stuff-v4/"
+            },
+            @{
+              Old = "https://vexo-sirramenboi.github.io/secret-stuff-v7/"
+              New = "/games/secret-stuff-v7/"
+            },
+            @{
+              Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v7/"
+              New = "/games/secret-stuff-v7/"
+            },
+            @{
+              Old = "https://vexo-sirramenboi.github.io/secret-stuff-v5/"
+              New = "/games/secret-stuff-v5/"
+            },
+            @{
+              Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v5/"
+              New = "/games/secret-stuff-v5/"
+            },
+            @{
+              Old = "https://vexo-sirramenboi.github.io/secret-stuff-v3/"
+              New = "/games/secret-stuff-v3/"
+            },
+            @{
+              Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v3/"
+              New = "/games/secret-stuff-v3/"
+            },
+            @{
+              Old = "https://vexo-sirramenboi.github.io/secret-stuff-v8"
+              New = "/games/secret-stuff-v8/"
+            },
+            @{
+              Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v8"
+              New = "/games/secret-stuff-v8/"
+            }
           )
 
-          foreach ($repo in $repos) {
-            $remoteWithSlash = "$base/$repo/"
-            $remoteWithoutSlash = "$base/$repo"
-            $local = "/games/$repo/"
-
+          foreach ($replacement in $replacements) {
             $html = $html.Replace(
-              $remoteWithSlash,
-              $local
+              $replacement.Old,
+              $replacement.New
             )
-
-            $html = $html.Replace(
-              $remoteWithoutSlash,
-              $local
-            )
-
-            Write-Host "Prepared: $repo"
           }
 
-          Set-Content `
-            -Path $index `
-            -Value $html `
-            -Encoding UTF8
+          Set-Content -LiteralPath $index -Value $html -Encoding UTF8
 
-      - name: Create desktop payload
-        shell: powershell
+          Write-Host "Launcher URLs rewritten."
+
+      # ============================================================
+      # 21. BUILD PAYLOAD
+      # ============================================================
+      - name: Build launcher payload
+        shell: pwsh
         run: |
-          Get-ChildItem `
-            -Path "build\launcher" `
-            -Force |
-            Copy-Item `
-              -Destination "build\payload" `
-              -Recurse `
-              -Force
+          $payload = "${{ github.workspace }}\build\payload"
+          $launcher = "${{ github.workspace }}\build\launcher"
+          $games = "${{ github.workspace }}\build\games"
 
-          New-Item `
-            -ItemType Directory `
-            -Force `
-            -Path "build\payload\games" |
-            Out-Null
+          Get-ChildItem -LiteralPath $launcher -Force |
+            Copy-Item -Destination $payload -Recurse -Force
 
-          Get-ChildItem `
-            -Path "build\games" `
-            -Force |
-            Copy-Item `
-              -Destination "build\payload\games" `
-              -Recurse `
-              -Force
+          New-Item -ItemType Directory -Force -Path "$payload\games" | Out-Null
 
-          if (-not (Test-Path "build\payload\index.html")) {
-            Write-Error "index.html is missing from payload."
-            exit 1
-          }
+          Get-ChildItem -LiteralPath $games -Directory |
+            ForEach-Object {
+              Copy-Item `
+                -LiteralPath $_.FullName `
+                -Destination "$payload\games\$($_.Name)" `
+                -Recurse `
+                -Force
+            }
 
-          if (-not (Test-Path "build\payload\games")) {
-            Write-Error "games directory is missing."
-            exit 1
-          }
+          Write-Host "Payload created."
 
-          Write-Host "Payload ready."
+          Write-Host ""
+          Write-Host "Payload contents:"
+          Get-ChildItem -LiteralPath $payload -Recurse -File |
+            Select-Object FullName, Length
 
+      # ============================================================
+      # 22. CREATE .NET PROJECT
+      # ============================================================
       - name: Create desktop project
-        shell: powershell
+        shell: pwsh
         run: |
           @'
           <Project Sdk="Microsoft.NET.Sdk">
@@ -290,53 +391,81 @@ jobs:
               <OutputType>WinExe</OutputType>
               <TargetFramework>net10.0-windows</TargetFramework>
               <UseWindowsForms>true</UseWindowsForms>
+              <Nullable>enable</Nullable>
+              <ImplicitUsings>enable</ImplicitUsings>
 
               <RuntimeIdentifier>win-x64</RuntimeIdentifier>
               <SelfContained>true</SelfContained>
-
               <PublishSingleFile>true</PublishSingleFile>
               <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+              <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
 
               <AssemblyName>Launcher-Le-Eaglercraft</AssemblyName>
               <RootNamespace>LauncherLeEaglercraft</RootNamespace>
+
+              <ApplicationManifest>app.manifest</ApplicationManifest>
             </PropertyGroup>
 
             <ItemGroup>
-              <PackageReference
-                Include="Microsoft.Web.WebView2"
-                Version="1.0.3485.11" />
+              <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3485.11" />
+            </ItemGroup>
 
-              <EmbeddedResource
-                Include="launcher.zip" />
+            <ItemGroup>
+              <EmbeddedResource Include="launcher.zip" />
             </ItemGroup>
 
           </Project>
-          '@ | Set-Content `
-            "desktop\Launcher-Le-Eaglercraft.csproj"
+          '@ | Set-Content -Path desktop\Launcher-Le-Eaglercraft.csproj -Encoding UTF8
 
-      - name: Create internal launcher package
-        shell: powershell
+      # ============================================================
+      # 23. CREATE WINDOWS MANIFEST
+      # ============================================================
+      - name: Create application manifest
+        shell: pwsh
         run: |
-          Compress-Archive `
-            -Path "build\payload\*" `
-            -DestinationPath "desktop\launcher.zip" `
-            -CompressionLevel Optimal
+          @'
+          <?xml version="1.0" encoding="utf-8"?>
+          <assembly manifestVersion="1.0"
+            xmlns="urn:schemas-microsoft-com:asm.v1">
 
-          if (-not (Test-Path "desktop\launcher.zip")) {
-            Write-Error "Internal launcher package was not created."
-            exit 1
-          }
+            <assemblyIdentity
+              version="1.0.0.0"
+              name="Launcher Le Eaglercraft"
+              type="win32" />
 
-          Write-Host "Internal launcher package created."
+            <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
+              <security>
+                <requestedPrivileges>
+                  <requestedExecutionLevel
+                    level="asInvoker"
+                    uiAccess="false" />
+                </requestedPrivileges>
+              </security>
+            </trustInfo>
 
-      - name: Create desktop launcher source
-        shell: powershell
+            <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+              <application>
+                <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"/>
+              </application>
+            </compatibility>
+
+          </assembly>
+          '@ | Set-Content -Path desktop\app.manifest -Encoding UTF8
+
+      # ============================================================
+      # 24. CREATE THE EXE SOURCE
+      # ============================================================
+      - name: Create desktop application
+        shell: pwsh
         run: |
           @'
           using System;
           using System.IO;
           using System.IO.Compression;
-          using System.Reflection;
+          using System.Net;
+          using System.Net.Sockets;
+          using System.Text;
+          using System.Threading;
           using System.Threading.Tasks;
           using System.Windows.Forms;
           using Microsoft.Web.WebView2.Core;
@@ -351,207 +480,743 @@ jobs:
                   {
                       ApplicationConfiguration.Initialize();
 
-                      string appDirectory =
-                          Path.Combine(
-                              Environment.GetFolderPath(
-                                  Environment.SpecialFolder.LocalApplicationData
-                              ),
-                              "Launcher Le Eaglercraft"
-                          );
-
-                      string launcherDirectory =
-                          Path.Combine(
-                              appDirectory,
-                              "launcher"
-                          );
-
-                      Directory.CreateDirectory(
-                          appDirectory
+                      string root = Path.Combine(
+                          Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                          "Launcher Le Eaglercraft",
+                          "launcher"
                       );
 
                       try
                       {
-                          ExtractLauncher(
-                              launcherDirectory
-                          );
+                          ExtractPayload(root);
+
+                          using var server = new LocalServer(root);
+
+                          server.Start();
 
                           Application.Run(
-                              new LauncherForm(
-                                  launcherDirectory
-                              )
+                              new LauncherForm(server.Url)
                           );
                       }
                       catch (Exception ex)
                       {
                           MessageBox.Show(
                               ex.ToString(),
-                              "Launcher Le Eaglercraft",
+                              "Launcher Le Eaglercraft - Startup Error",
                               MessageBoxButtons.OK,
                               MessageBoxIcon.Error
                           );
                       }
                   }
 
-                  static void ExtractLauncher(
-                      string destination
-                  )
+                  static void ExtractPayload(string root)
                   {
-                      Assembly assembly =
-                          Assembly.GetExecutingAssembly();
+                      Directory.CreateDirectory(root);
 
                       using Stream? resource =
-                          assembly.GetManifestResourceStream(
-                              "LauncherLeEaglercraft.launcher.zip"
+                          typeof(Program).Assembly.GetManifestResourceStream(
+                              "launcher.zip"
                           );
 
                       if (resource == null)
                       {
-                          throw new Exception(
-                              "Embedded launcher resources were not found."
+                          throw new FileNotFoundException(
+                              "Embedded launcher.zip was not found."
                           );
                       }
 
-                      string temporaryZip =
-                          Path.Combine(
-                              Path.GetTempPath(),
-                              "launcher-le-eaglercraft.zip"
-                          );
+                      string tempZip = Path.Combine(
+                          Path.GetTempPath(),
+                          "Launcher-Le-Eaglercraft-" +
+                          Guid.NewGuid().ToString("N") +
+                          ".zip"
+                      );
 
-                      using (
-                          FileStream output =
-                              new FileStream(
-                                  temporaryZip,
-                                  FileMode.Create,
-                                  FileAccess.Write
-                              )
-                      )
+                      try
                       {
-                          resource.CopyTo(output);
-                      }
+                          using (FileStream output =
+                              File.Create(tempZip))
+                          {
+                              resource.CopyTo(output);
+                          }
 
-                      if (Directory.Exists(destination))
-                      {
-                          Directory.Delete(
-                              destination,
+                          if (Directory.Exists(root))
+                          {
+                              foreach (string file in
+                                  Directory.GetFiles(root, "*", SearchOption.AllDirectories))
+                              {
+                                  try
+                                  {
+                                      File.SetAttributes(
+                                          file,
+                                          FileAttributes.Normal
+                                      );
+                                  }
+                                  catch
+                                  {
+                                  }
+                              }
+                          }
+
+                          ZipFile.ExtractToDirectory(
+                              tempZip,
+                              root,
                               true
                           );
                       }
-
-                      Directory.CreateDirectory(
-                          destination
-                      );
-
-                      ZipFile.ExtractToDirectory(
-                          temporaryZip,
-                          destination
-                      );
-
-                      File.Delete(
-                          temporaryZip
-                      );
+                      finally
+                      {
+                          try
+                          {
+                              File.Delete(tempZip);
+                          }
+                          catch
+                          {
+                          }
+                      }
                   }
               }
 
-              public sealed class LauncherForm : Form
+              internal sealed class LauncherForm : Form
               {
                   private readonly WebView2 webView;
 
-                  public LauncherForm(
-                      string launcherDirectory
-                  )
+                  public LauncherForm(string url)
                   {
-                      Text =
-                          "Launcher Le Eaglercraft";
+                      Text = "Launcher Le Eaglercraft";
 
                       Width = 1280;
                       Height = 800;
 
-                      MinimumSize =
-                          new System.Drawing.Size(
-                              900,
-                              600
-                          );
+                      MinimumSize = new System.Drawing.Size(
+                          900,
+                          600
+                      );
 
                       StartPosition =
                           FormStartPosition.CenterScreen;
 
-                      webView =
-                          new WebView2
-                          {
-                              Dock = DockStyle.Fill
-                          };
+                      webView = new WebView2
+                      {
+                          Dock = DockStyle.Fill
+                      };
 
-                      Controls.Add(
-                          webView
-                      );
+                      Controls.Add(webView);
 
                       Load += async (_, _) =>
                       {
-                          await InitializeBrowser(
-                              launcherDirectory
+                          try
+                          {
+                              await webView.EnsureCoreWebView2Async();
+
+                              webView.CoreWebView2.Settings
+                                  .AreDefaultContextMenusEnabled = true;
+
+                              webView.CoreWebView2.Settings
+                                  .AreDevToolsEnabled = true;
+
+                              webView.CoreWebView2.Settings
+                                  .IsStatusBarEnabled = false;
+
+                              webView.CoreWebView2.Navigate(
+                                  url + "index.html"
+                              );
+                          }
+                          catch (Exception ex)
+                          {
+                              MessageBox.Show(
+                                  ex.ToString(),
+                                  "WebView2 Error",
+                                  MessageBoxButtons.OK,
+                                  MessageBoxIcon.Error
+                              );
+                          }
+                      };
+                  }
+              }
+
+              internal sealed class LocalServer : IDisposable
+              {
+                  private readonly string root;
+                  private readonly TcpListener listener;
+                  private readonly CancellationTokenSource cancellation;
+                  private bool disposed;
+
+                  public int Port { get; }
+
+                  public string Url =>
+                      $"http://127.0.0.1:{Port}/";
+
+                  public LocalServer(string rootPath)
+                  {
+                      root = Path.GetFullPath(rootPath);
+
+                      listener = new TcpListener(
+                          IPAddress.Loopback,
+                          0
+                      );
+
+                      cancellation =
+                          new CancellationTokenSource();
+
+                      listener.Start();
+
+                      Port =
+                          ((IPEndPoint)listener.LocalEndpoint)
+                          .Port;
+                  }
+
+                  public void Start()
+                  {
+                      _ = Task.Run(
+                          () => AcceptLoopAsync(
+                              cancellation.Token
+                          )
+                      );
+                  }
+
+                  private async Task AcceptLoopAsync(
+                      CancellationToken token)
+                  {
+                      while (!token.IsCancellationRequested)
+                      {
+                          TcpClient? client = null;
+
+                          try
+                          {
+                              client =
+                                  await listener.AcceptTcpClientAsync(
+                                      token
+                                  );
+
+                              _ = Task.Run(
+                                  () => HandleClientAsync(client, token),
+                                  token
+                              );
+                          }
+                          catch (OperationCanceledException)
+                          {
+                              break;
+                          }
+                          catch
+                          {
+                              client?.Dispose();
+
+                              if (token.IsCancellationRequested)
+                                  break;
+                          }
+                      }
+                  }
+
+                  private async Task HandleClientAsync(
+                      TcpClient client,
+                      CancellationToken token)
+                  {
+                      using (client)
+
+                      try
+                      {
+                          client.ReceiveTimeout = 10000;
+                          client.SendTimeout = 10000;
+
+                          using NetworkStream stream =
+                              client.GetStream();
+
+                          byte[] requestBuffer =
+                              new byte[16384];
+
+                          int total = 0;
+
+                          while (total <
+                                 requestBuffer.Length)
+                          {
+                              int read =
+                                  await stream.ReadAsync(
+                                      requestBuffer.AsMemory(total),
+                                      token
+                                  );
+
+                              if (read <= 0)
+                                  return;
+
+                              total += read;
+
+                              if (total >= 4 &&
+                                  requestBuffer[total - 4] == 13 &&
+                                  requestBuffer[total - 3] == 10 &&
+                                  requestBuffer[total - 2] == 13 &&
+                                  requestBuffer[total - 1] == 10)
+                              {
+                                  break;
+                              }
+                          }
+
+                          string request =
+                              Encoding.ASCII.GetString(
+                                  requestBuffer,
+                                  0,
+                                  total
+                              );
+
+                          string firstLine =
+                              request.Split(
+                                  "\r\n",
+                                  StringSplitOptions.None
+                              )[0];
+
+                          string[] parts =
+                              firstLine.Split(
+                                  ' ',
+                                  StringSplitOptions.RemoveEmptyEntries
+                              );
+
+                          if (parts.Length < 2)
+                          {
+                              await SendError(
+                                  stream,
+                                  400,
+                                  "Bad Request"
+                              );
+
+                              return;
+                          }
+
+                          string method = parts[0];
+
+                          string target = parts[1];
+
+                          if (!string.Equals(
+                                  method,
+                                  "GET",
+                                  StringComparison.OrdinalIgnoreCase) &&
+                              !string.Equals(
+                                  method,
+                                  "HEAD",
+                                  StringComparison.OrdinalIgnoreCase))
+                          {
+                              await SendError(
+                                  stream,
+                                  405,
+                                  "Method Not Allowed"
+                              );
+
+                              return;
+                          }
+
+                          string pathPart =
+                              target.Split('?')[0];
+
+                          pathPart =
+                              Uri.UnescapeDataString(
+                                  pathPart
+                              );
+
+                          if (pathPart == "/" ||
+                              pathPart.Length == 0)
+                          {
+                              pathPart = "/index.html";
+                          }
+
+                          if (pathPart.Contains('\0') ||
+                              pathPart.Contains(".."))
+                          {
+                              await SendError(
+                                  stream,
+                                  403,
+                                  "Forbidden"
+                              );
+
+                              return;
+                          }
+
+                          string relative =
+                              pathPart.TrimStart('/')
+                              .Replace(
+                                  '/',
+                                  Path.DirectorySeparatorChar
+                              );
+
+                          string filePath =
+                              Path.GetFullPath(
+                                  Path.Combine(
+                                      root,
+                                      relative
+                                  )
+                              );
+
+                          string normalizedRoot =
+                              root.TrimEnd(
+                                  Path.DirectorySeparatorChar
+                              ) +
+                              Path.DirectorySeparatorChar;
+
+                          if (!filePath.StartsWith(
+                                  normalizedRoot,
+                                  StringComparison.OrdinalIgnoreCase))
+                          {
+                              await SendError(
+                                  stream,
+                                  403,
+                                  "Forbidden"
+                              );
+
+                              return;
+                          }
+
+                          if (!File.Exists(filePath))
+                          {
+                              await SendError(
+                                  stream,
+                                  404,
+                                  "Not Found"
+                              );
+
+                              return;
+                          }
+
+                          FileInfo info =
+                              new FileInfo(filePath);
+
+                          string mime =
+                              GetMimeType(filePath);
+
+                          byte[] data =
+                              File.ReadAllBytes(filePath);
+
+                          string headers =
+                              "HTTP/1.1 200 OK\r\n" +
+                              $"Content-Type: {mime}\r\n" +
+                              $"Content-Length: {data.Length}\r\n" +
+                              "Cache-Control: no-cache\r\n" +
+                              "Cross-Origin-Opener-Policy: same-origin\r\n" +
+                              "Cross-Origin-Embedder-Policy: require-corp\r\n" +
+                              "Cross-Origin-Resource-Policy: same-origin\r\n" +
+                              "X-Content-Type-Options: nosniff\r\n" +
+                              "Connection: close\r\n" +
+                              "\r\n";
+
+                          byte[] headerBytes =
+                              Encoding.ASCII.GetBytes(headers);
+
+                          await stream.WriteAsync(
+                              headerBytes,
+                              token
                           );
+
+                          if (!string.Equals(
+                                  method,
+                                  "HEAD",
+                                  StringComparison.OrdinalIgnoreCase))
+                          {
+                              await stream.WriteAsync(
+                                  data,
+                                  token
+                              );
+                          }
+                      }
+                      catch
+                      {
+                      }
+                  }
+
+                  private static async Task SendError(
+                      NetworkStream stream,
+                      int status,
+                      string message)
+                  {
+                      string body =
+                          $"<html><body><h1>{status} {message}</h1></body></html>";
+
+                      byte[] bodyBytes =
+                          Encoding.UTF8.GetBytes(body);
+
+                      string headers =
+                          $"HTTP/1.1 {status} {message}\r\n" +
+                          "Content-Type: text/html; charset=utf-8\r\n" +
+                          $"Content-Length: {bodyBytes.Length}\r\n" +
+                          "Cache-Control: no-cache\r\n" +
+                          "Cross-Origin-Opener-Policy: same-origin\r\n" +
+                          "Cross-Origin-Embedder-Policy: require-corp\r\n" +
+                          "Cross-Origin-Resource-Policy: same-origin\r\n" +
+                          "Connection: close\r\n" +
+                          "\r\n";
+
+                      byte[] headerBytes =
+                          Encoding.ASCII.GetBytes(headers);
+
+                      await stream.WriteAsync(
+                          headerBytes
+                      );
+
+                      await stream.WriteAsync(
+                          bodyBytes
+                      );
+                  }
+
+                  private static string GetMimeType(
+                      string path)
+                  {
+                      string ext =
+                          Path.GetExtension(path)
+                          .ToLowerInvariant();
+
+                      return ext switch
+                      {
+                          ".html" or ".htm" =>
+                              "text/html; charset=utf-8",
+
+                          ".js" or ".mjs" =>
+                              "application/javascript; charset=utf-8",
+
+                          ".css" =>
+                              "text/css; charset=utf-8",
+
+                          ".json" =>
+                              "application/json; charset=utf-8",
+
+                          ".wasm" =>
+                              "application/wasm",
+
+                          ".epk" =>
+                              "application/octet-stream",
+
+                          ".epw" =>
+                              "application/octet-stream",
+
+                          ".bin" =>
+                              "application/octet-stream",
+
+                          ".data" =>
+                              "application/octet-stream",
+
+                          ".png" =>
+                              "image/png",
+
+                          ".jpg" or ".jpeg" =>
+                              "image/jpeg",
+
+                          ".gif" =>
+                              "image/gif",
+
+                          ".webp" =>
+                              "image/webp",
+
+                          ".svg" =>
+                              "image/svg+xml",
+
+                          ".ico" =>
+                              "image/x-icon",
+
+                          ".woff" =>
+                              "font/woff",
+
+                          ".woff2" =>
+                              "font/woff2",
+
+                          ".ttf" =>
+                              "font/ttf",
+
+                          ".mp3" =>
+                              "audio/mpeg",
+
+                          ".ogg" =>
+                              "audio/ogg",
+
+                          ".wav" =>
+                              "audio/wav",
+
+                          ".mp4" =>
+                              "video/mp4",
+
+                          ".webm" =>
+                              "video/webm",
+
+                          _ =>
+                              "application/octet-stream"
                       };
                   }
 
-                  private async Task InitializeBrowser(
-                      string launcherDirectory
-                  )
+                  public void Dispose()
                   {
-                      await webView.EnsureCoreWebView2Async();
+                      if (disposed)
+                          return;
 
-                      webView.CoreWebView2
-                          .SetVirtualHostNameToFolderMapping(
-                              "launcher.local",
-                              launcherDirectory,
-                              CoreWebView2HostResourceAccessKind.Allow
-                          );
+                      disposed = true;
 
-                      webView.CoreWebView2.Navigate(
-                          "https://launcher.local/index.html"
-                      );
+                      try
+                      {
+                          cancellation.Cancel();
+                      }
+                      catch
+                      {
+                      }
+
+                      try
+                      {
+                          listener.Stop();
+                      }
+                      catch
+                      {
+                      }
+
+                      cancellation.Dispose();
                   }
               }
           }
-          '@ | Set-Content `
-            "desktop\Program.cs"
+          '@ | Set-Content -Path desktop\Program.cs -Encoding UTF8
 
-      - name: Build single-file EXE
-        shell: powershell
+      # ============================================================
+      # 25. CREATE INTERNAL ZIP
+      # ============================================================
+      - name: Create embedded launcher archive
+        shell: pwsh
+        run: |
+          $payload = "${{ github.workspace }}\build\payload"
+          $zip = "${{ github.workspace }}\desktop\launcher.zip"
+
+          if (Test-Path $zip) {
+            Remove-Item $zip -Force
+          }
+
+          Compress-Archive `
+            -Path "$payload\*" `
+            -DestinationPath $zip `
+            -CompressionLevel Optimal
+
+          if (-not (Test-Path $zip)) {
+            throw "launcher.zip was not created."
+          }
+
+          Write-Host "Embedded archive created:"
+          Get-Item $zip | Select-Object FullName, Length
+
+      # ============================================================
+      # 26. RESTORE / BUILD / PUBLISH
+      # ============================================================
+      - name: Restore project
+        shell: pwsh
+        run: |
+          dotnet restore desktop\Launcher-Le-Eaglercraft.csproj
+
+      - name: Publish single EXE
+        shell: pwsh
         run: |
           dotnet publish `
-            "desktop\Launcher-Le-Eaglercraft.csproj" `
-            --configuration Release `
-            --runtime win-x64 `
+            desktop\Launcher-Le-Eaglercraft.csproj `
+            -c Release `
+            -r win-x64 `
             --self-contained true `
             -p:PublishSingleFile=true `
             -p:IncludeNativeLibrariesForSelfExtract=true `
-            --output "dist"
+            -p:EnableCompressionInSingleFile=true `
+            -o dist
 
+      # ============================================================
+      # 27. VERIFY EXE
+      # ============================================================
       - name: Verify EXE
-        shell: powershell
+        shell: pwsh
         run: |
-          $exe = "dist\Launcher-Le-Eaglercraft.exe"
+          $exe = "${{ github.workspace }}\dist\Launcher-Le-Eaglercraft.exe"
 
           if (-not (Test-Path $exe)) {
-            Write-Error "Launcher-Le-Eaglercraft.exe was not created."
-            exit 1
+            throw "Launcher EXE was not created."
           }
 
           $file = Get-Item $exe
 
           Write-Host ""
-          Write-Host "============================================"
-          Write-Host " BUILD SUCCESSFUL"
-          Write-Host "============================================"
-          Write-Host "File: $($file.Name)"
+          Write-Host "=========================================="
+          Write-Host "Launcher EXE created successfully"
+          Write-Host "=========================================="
+          Write-Host "Path: $($file.FullName)"
           Write-Host "Size: $($file.Length) bytes"
-          Write-Host "============================================"
+          Write-Host "=========================================="
 
+      # ============================================================
+      # 28. CREATE RELEASE CHANGELOG
+      # ============================================================
+      - name: Create release changelog
+        shell: pwsh
+        run: |
+          $sha = "${{ github.sha }}".Substring(0, 7)
+          $run = "${{ github.run_number }}"
+          $date = (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm 'UTC'")
+
+          @"
+          # Launcher Le Eaglercraft — Build $run
+
+          ## Changes
+
+          ### Fixed
+          - Fixed newer Eaglercraft versions failing to load inside the Windows EXE.
+          - Replaced the previous WebView2 local-folder loading method with an internal localhost HTTP server.
+          - Added Cross-Origin-Opener-Policy support.
+          - Added Cross-Origin-Embedder-Policy support.
+          - Added Cross-Origin-Resource-Policy support.
+          - Added proper WASM MIME type handling.
+          - Added EPK/EPW/binary resource handling.
+          - Added local HTTP status handling for missing resources.
+          - Improved compatibility with newer WASM-based Eaglercraft builds.
+
+          ### Launcher
+          - Kept the existing Launcher Le Eaglercraft interface.
+          - Existing launcher game buttons are redirected to the embedded game folders.
+          - The launcher and games are packaged together.
+
+          ### Included Versions
+          - secret-stuff
+          - secret-stuff-v2
+          - secret-stuff-v3
+          - secret-stuff-v4
+          - secret-stuff-v5
+          - secret-stuff-v6
+          - secret-stuff-v7
+          - secret-stuff-v8
+          - secret-stuff-v9
+          - secret-stuff-v10
+          - secret-stuff-v11
+          - secret-stuff-v12
+          - secret-stuff-v13
+
+          ### Packaging
+          - All launcher files are embedded into the EXE.
+          - All 13 game repositories are embedded into the EXE.
+          - The release contains one downloadable Windows EXE instead of a ZIP archive.
+          - The application uses a self-contained .NET Windows build.
+
+          ## Build Information
+
+          - Build: $run
+          - Commit: $sha
+          - Built: $date
+          - Platform: Windows x64
+          - Runtime: .NET 10
+          - Web engine: Microsoft WebView2
+
+          ## Notes
+
+          The launcher starts a local HTTP server internally so newer WASM-based
+          versions can receive the HTTP headers they require. No separate launcher
+          folder is required next to the EXE.
+          "@ | Set-Content `
+            -Path release-notes.md `
+            -Encoding UTF8
+
+          Write-Host "Release changelog created."
+
+      # ============================================================
+      # 29. CREATE GITHUB RELEASE
+      # ============================================================
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: launcher-${{ github.run_number }}
-          name: Launcher Le Eaglercraft ${{ github.run_number }}
-          generate_release_notes: true
+          tag_name: "launcher-build-${{ github.run_number }}"
+          name: "Launcher Le Eaglercraft - Build ${{ github.run_number }}"
+          body_path: release-notes.md
           files: |
             dist/Launcher-Le-Eaglercraft.exe
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
