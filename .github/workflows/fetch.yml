@@ -1,0 +1,536 @@
+name: Build Launcher Le Eaglercraft EXE
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    name: Build Windows EXE
+    runs-on: windows-latest
+
+    steps:
+
+      # ============================================================
+      # 1. Checkout YOUR launcher-le-eaglercraft repository
+      # ============================================================
+      - name: Checkout Launcher Le Eaglercraft
+        uses: actions/checkout@v4
+        with:
+          path: launcher
+
+      # ============================================================
+      # 2. Install .NET
+      # ============================================================
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # ============================================================
+      # 3. Create build directories
+      # ============================================================
+      - name: Create build directories
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path "build"
+          New-Item -ItemType Directory -Force -Path "build\launcher"
+          New-Item -ItemType Directory -Force -Path "build\games"
+          New-Item -ItemType Directory -Force -Path "desktop"
+
+      # ============================================================
+      # 4. Copy EVERYTHING from your launcher repository
+      #
+      # This preserves your:
+      # index.html
+      # CSS
+      # JavaScript
+      # favicon
+      # manifest
+      # service worker
+      # images
+      # other assets
+      # ============================================================
+      - name: Copy existing launcher
+        shell: powershell
+        run: |
+          robocopy "launcher" "build\launcher" /E /XD ".git" ".github" /XF ".gitignore"
+
+          if ($LASTEXITCODE -gt 7) {
+            exit $LASTEXITCODE
+          }
+
+      # ============================================================
+      # 5. Download secret-stuff-
+      # ============================================================
+      - name: Download secret-stuff-
+        shell: powershell
+        run: |
+          git clone --depth 1 `
+            "https://github.com/Vexo-Sirramenboi/secret-stuff-.git" `
+            "build\games\secret-stuff-"
+
+      # ============================================================
+      # 6. Download secret-stuff-v2
+      # ============================================================
+      - name: Download secret-stuff-v2
+        shell: powershell
+        run: |
+          git clone --depth 1 `
+            "https://github.com/Vexo-Sirramenboi/secret-stuff-v2.git" `
+            "build\games\secret-stuff-v2"
+
+      # ============================================================
+      # 7. Download secret-stuff-v3
+      # ============================================================
+      - name: Download secret-stuff-v3
+        shell: powershell
+        run: |
+          git clone --depth 1 `
+            "https://github.com/Vexo-Sirramenboi/secret-stuff-v3.git" `
+            "build\games\secret-stuff-v3"
+
+      # ============================================================
+      # 8. Download secret-stuff-v4
+      # ============================================================
+      - name: Download secret-stuff-v4
+        shell: powershell
+        run: |
+          git clone --depth 1 `
+            "https://github.com/Vexo-Sirramenboi/secret-stuff-v4.git" `
+            "build\games\secret-stuff-v4"
+
+      # ============================================================
+      # 9. Download secret-stuff-v5
+      # ============================================================
+      - name: Download secret-stuff-v5
+        shell: powershell
+        run: |
+          git clone --depth 1 `
+            "https://github.com/Vexo-Sirramenboi/secret-stuff-v5.git" `
+            "build\games\secret-stuff-v5"
+
+      # ============================================================
+      # 10. Download secret-stuff-v6
+      # ============================================================
+      - name: Download secret-stuff-v6
+        shell: powershell
+        run: |
+          git clone --depth 1 `
+            "https://github.com/Vexo-Sirramenboi/secret-stuff-v6.git" `
+            "build\games\secret-stuff-v6"
+
+      # ============================================================
+      # 11. Download secret-stuff-v7
+      # ============================================================
+      - name: Download secret-stuff-v7
+        shell: powershell
+        run: |
+          git clone --depth 1 `
+            "https://github.com/Vexo-Sirramenboi/secret-stuff-v7.git" `
+            "build\games\secret-stuff-v7"
+
+      # ============================================================
+      # 12. Download secret-stuff-v8
+      # ============================================================
+      - name: Download secret-stuff-v8
+        shell: powershell
+        run: |
+          git clone --depth 1 `
+            "https://github.com/Vexo-Sirramenboi/secret-stuff-v8.git" `
+            "build\games\secret-stuff-v8"
+
+      # ============================================================
+      # 13. Download secret-stuff-v9
+      # ============================================================
+      - name: Download secret-stuff-v9
+        shell: powershell
+        run: |
+          git clone --depth 1 `
+            "https://github.com/Vexo-Sirramenboi/secret-stuff-v9.git" `
+            "build\games\secret-stuff-v9"
+
+      # ============================================================
+      # 14. Download secret-stuff-v10
+      # ============================================================
+      - name: Download secret-stuff-v10
+        shell: powershell
+        run: |
+          git clone --depth 1 `
+            "https://github.com/Vexo-Sirramenboi/secret-stuff-v10.git" `
+            "build\games\secret-stuff-v10"
+
+      # ============================================================
+      # 15. Download secret-stuff-v11
+      # ============================================================
+      - name: Download secret-stuff-v11
+        shell: powershell
+        run: |
+          git clone --depth 1 `
+            "https://github.com/Vexo-Sirramenboi/secret-stuff-v11.git" `
+            "build\games\secret-stuff-v11"
+
+      # ============================================================
+      # 16. Download secret-stuff-v12
+      # ============================================================
+      - name: Download secret-stuff-v12
+        shell: powershell
+        run: |
+          git clone --depth 1 `
+            "https://github.com/Vexo-Sirramenboi/secret-stuff-v12.git" `
+            "build\games\secret-stuff-v12"
+
+      # ============================================================
+      # 17. Download secret-stuff-v13
+      # ============================================================
+      - name: Download secret-stuff-v13
+        shell: powershell
+        run: |
+          git clone --depth 1 `
+            "https://github.com/Vexo-Sirramenboi/secret-stuff-v13.git" `
+            "build\games\secret-stuff-v13"
+
+      # ============================================================
+      # 18. Remove Git metadata
+      # ============================================================
+      - name: Remove Git metadata
+        shell: powershell
+        run: |
+          Get-ChildItem "build" -Directory -Recurse -Force |
+            Where-Object { $_.Name -eq ".git" } |
+            Remove-Item -Recurse -Force
+
+      # ============================================================
+      # 19. Create a local copy of index.html
+      #
+      # The existing launcher remains intact.
+      # We only create the desktop-build copy so the EXE can
+      # reference the downloaded game repositories locally.
+      # ============================================================
+      - name: Prepare desktop launcher
+        shell: powershell
+        run: |
+          $index = "build\launcher\index.html"
+
+          if (-not (Test-Path $index)) {
+            Write-Error "index.html was not found in launcher-le-eaglercraft."
+            exit 1
+          }
+
+          $html = Get-Content $index -Raw
+
+          $replacements = @{
+            "https://vexo-sirramenboi.github.io/secret-stuff-v10/" = "/games/secret-stuff-v10/"
+            "https://Vexo-Sirramenboi.github.io/secret-stuff-v10/" = "/games/secret-stuff-v10/"
+
+            "https://vexo-sirramenboi.github.io/secret-stuff-v11/" = "/games/secret-stuff-v11/"
+            "https://Vexo-Sirramenboi.github.io/secret-stuff-v11/" = "/games/secret-stuff-v11/"
+
+            "https://vexo-sirramenboi.github.io/secret-stuff-v12/" = "/games/secret-stuff-v12/"
+            "https://Vexo-Sirramenboi.github.io/secret-stuff-v12/" = "/games/secret-stuff-v12/"
+
+            "https://vexo-sirramenboi.github.io/secret-stuff-v13/" = "/games/secret-stuff-v13/"
+            "https://Vexo-Sirramenboi.github.io/secret-stuff-v13/" = "/games/secret-stuff-v13/"
+
+            "https://vexo-sirramenboi.github.io/secret-stuff/" = "/games/secret-stuff-/"
+            "https://Vexo-Sirramenboi.github.io/secret-stuff/" = "/games/secret-stuff-/"
+
+            "https://vexo-sirramenboi.github.io/secret-stuff-v6/" = "/games/secret-stuff-v6/"
+            "https://Vexo-Sirramenboi.github.io/secret-stuff-v6/" = "/games/secret-stuff-v6/"
+
+            "https://vexo-sirramenboi.github.io/secret-stuff-v4/" = "/games/secret-stuff-v4/"
+            "https://Vexo-Sirramenboi.github.io/secret-stuff-v4/" = "/games/secret-stuff-v4/"
+
+            "https://vexo-sirramenboi.github.io/secret-stuff-v7/" = "/games/secret-stuff-v7/"
+            "https://Vexo-Sirramenboi.github.io/secret-stuff-v7/" = "/games/secret-stuff-v7/"
+
+            "https://vexo-sirramenboi.github.io/secret-stuff-v5/" = "/games/secret-stuff-v5/"
+            "https://Vexo-Sirramenboi.github.io/secret-stuff-v5/" = "/games/secret-stuff-v5/"
+
+            "https://vexo-sirramenboi.github.io/secret-stuff-v3/" = "/games/secret-stuff-v3/"
+            "https://Vexo-Sirramenboi.github.io/secret-stuff-v3/" = "/games/secret-stuff-v3/"
+
+            "https://vexo-sirramenboi.github.io/secret-stuff-v8" = "/games/secret-stuff-v8/"
+          }
+
+          foreach ($old in $replacements.Keys) {
+            $html = $html.Replace(
+              $old,
+              $replacements[$old]
+            )
+          }
+
+          Set-Content `
+            -Path "build\launcher\index.html" `
+            -Value $html `
+            -Encoding UTF8
+
+      # ============================================================
+      # 20. Create .NET desktop project
+      # ============================================================
+      - name: Create desktop project
+        shell: powershell
+        run: |
+          @'
+          <Project Sdk="Microsoft.NET.Sdk">
+
+            <PropertyGroup>
+              <OutputType>WinExe</OutputType>
+              <TargetFramework>net8.0-windows</TargetFramework>
+              <UseWindowsForms>true</UseWindowsForms>
+
+              <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+              <SelfContained>true</SelfContained>
+
+              <PublishSingleFile>true</PublishSingleFile>
+              <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+
+              <AssemblyName>Launcher-Le-Eaglercraft</AssemblyName>
+              <RootNamespace>LauncherLeEaglercraft</RootNamespace>
+
+              <EnableDefaultApplicationIcon>false</EnableDefaultApplicationIcon>
+            </PropertyGroup>
+
+            <ItemGroup>
+              <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3485.11" />
+              <EmbeddedResource Include="launcher.zip" />
+            </ItemGroup>
+
+          </Project>
+          '@ | Set-Content "desktop\Launcher-Le-Eaglercraft.csproj"
+
+      # ============================================================
+      # 21. Package YOUR launcher + all 13 repos
+      # ============================================================
+      - name: Package launcher resources
+        shell: powershell
+        run: |
+          Compress-Archive `
+            -Path "build\launcher", "build\games" `
+            -DestinationPath "desktop\launcher.zip" `
+            -CompressionLevel Optimal
+
+      # ============================================================
+      # 22. Create desktop launcher source
+      # ============================================================
+      - name: Create desktop launcher source
+        shell: powershell
+        run: |
+          @'
+          using System;
+          using System.IO;
+          using System.IO.Compression;
+          using System.Reflection;
+          using System.Windows.Forms;
+          using Microsoft.Web.WebView2.Core;
+          using Microsoft.Web.WebView2.WinForms;
+
+          namespace LauncherLeEaglercraft
+          {
+              internal static class Program
+              {
+                  [STAThread]
+                  static void Main()
+                  {
+                      ApplicationConfiguration.Initialize();
+
+                      string appDirectory = Path.Combine(
+                          Environment.GetFolderPath(
+                              Environment.SpecialFolder.LocalApplicationData
+                          ),
+                          "Launcher Le Eaglercraft"
+                      );
+
+                      string launcherDirectory =
+                          Path.Combine(appDirectory, "launcher");
+
+                      Directory.CreateDirectory(appDirectory);
+
+                      try
+                      {
+                          ExtractLauncher(
+                              launcherDirectory
+                          );
+
+                          Application.Run(
+                              new LauncherForm(
+                                  launcherDirectory
+                              )
+                          );
+                      }
+                      catch (Exception ex)
+                      {
+                          MessageBox.Show(
+                              ex.ToString(),
+                              "Launcher Le Eaglercraft",
+                              MessageBoxButtons.OK,
+                              MessageBoxIcon.Error
+                          );
+                      }
+                  }
+
+                  static void ExtractLauncher(
+                      string destination
+                  )
+                  {
+                      Assembly assembly =
+                          Assembly.GetExecutingAssembly();
+
+                      using Stream? resource =
+                          assembly.GetManifestResourceStream(
+                              "LauncherLeEaglercraft.launcher.zip"
+                          );
+
+                      if (resource == null)
+                      {
+                          throw new Exception(
+                              "Embedded launcher resources were not found."
+                          );
+                      }
+
+                      string temporaryZip =
+                          Path.Combine(
+                              Path.GetTempPath(),
+                              "launcher-le-eaglercraft.zip"
+                          );
+
+                      using (
+                          FileStream output =
+                              new FileStream(
+                                  temporaryZip,
+                                  FileMode.Create,
+                                  FileAccess.Write
+                              )
+                      )
+                      {
+                          resource.CopyTo(output);
+                      }
+
+                      if (Directory.Exists(destination))
+                      {
+                          Directory.Delete(
+                              destination,
+                              true
+                          );
+                      }
+
+                      Directory.CreateDirectory(
+                          destination
+                      );
+
+                      ZipFile.ExtractToDirectory(
+                          temporaryZip,
+                          destination
+                      );
+
+                      File.Delete(
+                          temporaryZip
+                      );
+                  }
+              }
+
+              public sealed class LauncherForm : Form
+              {
+                  private readonly WebView2 webView;
+
+                  public LauncherForm(
+                      string launcherDirectory
+                  )
+                  {
+                      Text =
+                          "Launcher Le Eaglercraft";
+
+                      Width = 1280;
+                      Height = 800;
+
+                      StartPosition =
+                          FormStartPosition.CenterScreen;
+
+                      webView =
+                          new WebView2
+                          {
+                              Dock = DockStyle.Fill
+                          };
+
+                      Controls.Add(webView);
+
+                      Load += async (_, _) =>
+                      {
+                          await InitializeBrowser(
+                              launcherDirectory
+                          );
+                      };
+                  }
+
+                  private async Task InitializeBrowser(
+                      string launcherDirectory
+                  )
+                  {
+                      await webView.EnsureCoreWebView2Async();
+
+                      webView.CoreWebView2.SetVirtualHostNameToFolderMapping(
+                          "launcher.local",
+                          launcherDirectory,
+                          CoreWebView2HostResourceAccessKind.Allow
+                      );
+
+                      webView.CoreWebView2.Navigate(
+                          "https://launcher.local/index.html"
+                      );
+                  }
+              }
+          }
+          '@ | Set-Content "desktop\Program.cs"
+
+      # ============================================================
+      # 23. Publish ONE EXE
+      # ============================================================
+      - name: Build single-file Windows EXE
+        shell: powershell
+        run: |
+          dotnet publish `
+            "desktop\Launcher-Le-Eaglercraft.csproj" `
+            --configuration Release `
+            --runtime win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            --output "dist"
+
+      # ============================================================
+      # 24. Verify the output
+      # ============================================================
+      - name: Verify EXE
+        shell: powershell
+        run: |
+          $exe = "dist\Launcher-Le-Eaglercraft.exe"
+
+          if (-not (Test-Path $exe)) {
+            Write-Error "EXE was not created."
+            exit 1
+          }
+
+          Write-Host ""
+          Write-Host "========================================"
+          Write-Host "Launcher EXE successfully created"
+          Write-Host "========================================"
+          Write-Host ""
+
+          Get-Item $exe |
+            Select-Object Name, Length, FullName
+
+      # ============================================================
+      # 25. Upload the SINGLE EXE
+      # ============================================================
+      - name: Upload Launcher EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: Launcher-Le-Eaglercraft-Windows
+          path: dist\Launcher-Le-Eaglercraft.exe
+          if-no-files-found: error
+          retention-days: 30
