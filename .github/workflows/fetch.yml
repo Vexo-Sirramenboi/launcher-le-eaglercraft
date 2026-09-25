@@ -21,7 +21,7 @@ jobs:
           path: launcher
 
       # ============================================================
-      # 2. SET UP .NET
+      # 2. SET UP .NET 10
       # ============================================================
       - name: Setup .NET 10
         uses: actions/setup-dotnet@v4
@@ -42,7 +42,7 @@ jobs:
           New-Item -ItemType Directory -Force -Path dist | Out-Null
 
       # ============================================================
-      # 4. COPY THE EXISTING LAUNCHER
+      # 4. COPY EXISTING LAUNCHER
       # ============================================================
       - name: Copy existing launcher
         shell: pwsh
@@ -68,7 +68,7 @@ jobs:
           Write-Host "Existing launcher copied."
 
       # ============================================================
-      # 5. DOWNLOAD GAME 1
+      # 5. DOWNLOAD GAME REPOSITORIES
       # ============================================================
       - name: Download secret-stuff
         uses: actions/checkout@v4
@@ -76,108 +76,72 @@ jobs:
           repository: Vexo-Sirramenboi/secret-stuff
           path: build/games/secret-stuff
 
-      # ============================================================
-      # 6. DOWNLOAD GAME 2
-      # ============================================================
       - name: Download secret-stuff-v2
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v2
           path: build/games/secret-stuff-v2
 
-      # ============================================================
-      # 7. DOWNLOAD GAME 3
-      # ============================================================
       - name: Download secret-stuff-v3
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v3
           path: build/games/secret-stuff-v3
 
-      # ============================================================
-      # 8. DOWNLOAD GAME 4
-      # ============================================================
       - name: Download secret-stuff-v4
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v4
           path: build/games/secret-stuff-v4
 
-      # ============================================================
-      # 9. DOWNLOAD GAME 5
-      # ============================================================
       - name: Download secret-stuff-v5
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v5
           path: build/games/secret-stuff-v5
 
-      # ============================================================
-      # 10. DOWNLOAD GAME 6
-      # ============================================================
       - name: Download secret-stuff-v6
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v6
           path: build/games/secret-stuff-v6
 
-      # ============================================================
-      # 11. DOWNLOAD GAME 7
-      # ============================================================
       - name: Download secret-stuff-v7
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v7
           path: build/games/secret-stuff-v7
 
-      # ============================================================
-      # 12. DOWNLOAD GAME 8
-      # ============================================================
       - name: Download secret-stuff-v8
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v8
           path: build/games/secret-stuff-v8
 
-      # ============================================================
-      # 13. DOWNLOAD GAME 9
-      # ============================================================
       - name: Download secret-stuff-v9
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v9
           path: build/games/secret-stuff-v9
 
-      # ============================================================
-      # 14. DOWNLOAD GAME 10
-      # ============================================================
       - name: Download secret-stuff-v10
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v10
           path: build/games/secret-stuff-v10
 
-      # ============================================================
-      # 15. DOWNLOAD GAME 11
-      # ============================================================
       - name: Download secret-stuff-v11
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v11
           path: build/games/secret-stuff-v11
 
-      # ============================================================
-      # 16. DOWNLOAD GAME 12
-      # ============================================================
       - name: Download secret-stuff-v12
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v12
           path: build/games/secret-stuff-v12
 
-      # ============================================================
-      # 17. DOWNLOAD GAME 13
-      # ============================================================
       - name: Download secret-stuff-v13
         uses: actions/checkout@v4
         with:
@@ -185,19 +149,23 @@ jobs:
           path: build/games/secret-stuff-v13
 
       # ============================================================
-      # 18. REMOVE GIT METADATA
+      # 6. REMOVE GIT METADATA
       # ============================================================
       - name: Remove repository metadata
         shell: pwsh
         run: |
-          Get-ChildItem -Path "${{ github.workspace }}\build" -Directory -Recurse -Force |
+          Get-ChildItem `
+            -Path "${{ github.workspace }}\build" `
+            -Directory `
+            -Recurse `
+            -Force |
             Where-Object { $_.Name -eq ".git" } |
             Remove-Item -Recurse -Force
 
           Write-Host "Git metadata removed."
 
       # ============================================================
-      # 19. VERIFY ALL 13 GAMES EXIST
+      # 7. VERIFY ALL 13 GAMES
       # ============================================================
       - name: Verify all game repositories
         shell: pwsh
@@ -229,10 +197,10 @@ jobs:
           }
 
           Write-Host ""
-          Write-Host "All 13 game repositories were downloaded successfully."
+          Write-Host "All 13 game repositories downloaded successfully."
 
       # ============================================================
-      # 20. MAKE LAUNCHER POINT TO EMBEDDED GAMES
+      # 8. REWRITE LAUNCHER URLS
       # ============================================================
       - name: Rewrite launcher game URLs
         shell: pwsh
@@ -343,12 +311,15 @@ jobs:
             )
           }
 
-          Set-Content -LiteralPath $index -Value $html -Encoding UTF8
+          Set-Content `
+            -LiteralPath $index `
+            -Value $html `
+            -Encoding UTF8
 
           Write-Host "Launcher URLs rewritten."
 
       # ============================================================
-      # 21. BUILD PAYLOAD
+      # 9. BUILD PAYLOAD
       # ============================================================
       - name: Build launcher payload
         shell: pwsh
@@ -358,11 +329,20 @@ jobs:
           $games = "${{ github.workspace }}\build\games"
 
           Get-ChildItem -LiteralPath $launcher -Force |
-            Copy-Item -Destination $payload -Recurse -Force
+            Copy-Item `
+              -Destination $payload `
+              -Recurse `
+              -Force
 
-          New-Item -ItemType Directory -Force -Path "$payload\games" | Out-Null
+          New-Item `
+            -ItemType Directory `
+            -Force `
+            -Path "$payload\games" |
+            Out-Null
 
-          Get-ChildItem -LiteralPath $games -Directory |
+          Get-ChildItem `
+            -LiteralPath $games `
+            -Directory |
             ForEach-Object {
               Copy-Item `
                 -LiteralPath $_.FullName `
@@ -373,13 +353,8 @@ jobs:
 
           Write-Host "Payload created."
 
-          Write-Host ""
-          Write-Host "Payload contents:"
-          Get-ChildItem -LiteralPath $payload -Recurse -File |
-            Select-Object FullName, Length
-
       # ============================================================
-      # 22. CREATE .NET PROJECT
+      # 10. CREATE .NET PROJECT
       # ============================================================
       - name: Create desktop project
         shell: pwsh
@@ -390,12 +365,15 @@ jobs:
             <PropertyGroup>
               <OutputType>WinExe</OutputType>
               <TargetFramework>net10.0-windows</TargetFramework>
+
               <UseWindowsForms>true</UseWindowsForms>
+
               <Nullable>enable</Nullable>
               <ImplicitUsings>enable</ImplicitUsings>
 
               <RuntimeIdentifier>win-x64</RuntimeIdentifier>
               <SelfContained>true</SelfContained>
+
               <PublishSingleFile>true</PublishSingleFile>
               <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
               <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
@@ -407,7 +385,9 @@ jobs:
             </PropertyGroup>
 
             <ItemGroup>
-              <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3485.11" />
+              <PackageReference
+                Include="Microsoft.Web.WebView2"
+                Version="1.0.3485.11" />
             </ItemGroup>
 
             <ItemGroup>
@@ -415,25 +395,31 @@ jobs:
             </ItemGroup>
 
           </Project>
-          '@ | Set-Content -Path desktop\Launcher-Le-Eaglercraft.csproj -Encoding UTF8
+          '@ | Set-Content `
+            -Path desktop\Launcher-Le-Eaglercraft.csproj `
+            -Encoding UTF8
 
       # ============================================================
-      # 23. CREATE WINDOWS MANIFEST
+      # 11. CREATE WINDOWS MANIFEST
       # ============================================================
       - name: Create application manifest
         shell: pwsh
         run: |
           @'
           <?xml version="1.0" encoding="utf-8"?>
-          <assembly manifestVersion="1.0"
-            xmlns="urn:schemas-microsoft-com:asm.v1">
+
+          <assembly
+            manifestVersion="1.0"
+            xmlns="urn:schemas-microsoft-com:asm">
 
             <assemblyIdentity
               version="1.0.0.0"
               name="Launcher Le Eaglercraft"
               type="win32" />
 
-            <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
+            <trustInfo
+              xmlns="urn:schemas-microsoft-com:asm.v3">
+
               <security>
                 <requestedPrivileges>
                   <requestedExecutionLevel
@@ -441,19 +427,26 @@ jobs:
                     uiAccess="false" />
                 </requestedPrivileges>
               </security>
+
             </trustInfo>
 
-            <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+            <compatibility
+              xmlns="urn:schemas-microsoft-com:compatibility.v1">
+
               <application>
-                <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"/>
+                <supportedOS
+                  Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}" />
               </application>
+
             </compatibility>
 
           </assembly>
-          '@ | Set-Content -Path desktop\app.manifest -Encoding UTF8
+          '@ | Set-Content `
+            -Path desktop\app.manifest `
+            -Encoding UTF8
 
       # ============================================================
-      # 24. CREATE THE EXE SOURCE
+      # 12. CREATE DESKTOP APPLICATION
       # ============================================================
       - name: Create desktop application
         shell: pwsh
@@ -464,11 +457,11 @@ jobs:
           using System.IO.Compression;
           using System.Net;
           using System.Net.Sockets;
+          using System.Reflection;
           using System.Text;
           using System.Threading;
           using System.Threading.Tasks;
           using System.Windows.Forms;
-          using Microsoft.Web.WebView2.Core;
           using Microsoft.Web.WebView2.WinForms;
 
           namespace LauncherLeEaglercraft
@@ -481,7 +474,9 @@ jobs:
                       ApplicationConfiguration.Initialize();
 
                       string root = Path.Combine(
-                          Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                          Environment.GetFolderPath(
+                              Environment.SpecialFolder.LocalApplicationData
+                          ),
                           "Launcher Le Eaglercraft",
                           "launcher"
                       );
@@ -490,7 +485,8 @@ jobs:
                       {
                           ExtractPayload(root);
 
-                          using var server = new LocalServer(root);
+                          using var server =
+                              new LocalServer(root);
 
                           server.Start();
 
@@ -513,37 +509,91 @@ jobs:
                   {
                       Directory.CreateDirectory(root);
 
-                      using Stream? resource =
-                          typeof(Program).Assembly.GetManifestResourceStream(
-                              "launcher.zip"
-                          );
+                      Assembly assembly =
+                          typeof(Program).Assembly;
 
-                      if (resource == null)
+                      string[] resources =
+                          assembly.GetManifestResourceNames();
+
+                      string? resourceName = null;
+
+                      foreach (string resource in resources)
                       {
+                          if (
+                              resource.EndsWith(
+                                  "launcher.zip",
+                                  StringComparison.OrdinalIgnoreCase
+                              )
+                          )
+                          {
+                              resourceName = resource;
+                              break;
+                          }
+                      }
+
+                      if (resourceName == null)
+                      {
+                          string availableResources =
+                              resources.Length == 0
+                                  ? "(none)"
+                                  : string.Join(
+                                      Environment.NewLine,
+                                      resources
+                                  );
+
                           throw new FileNotFoundException(
                               "Embedded launcher.zip was not found."
+                              + Environment.NewLine
+                              + Environment.NewLine
+                              + "Available embedded resources:"
+                              + Environment.NewLine
+                              + availableResources
                           );
                       }
 
-                      string tempZip = Path.Combine(
-                          Path.GetTempPath(),
-                          "Launcher-Le-Eaglercraft-" +
-                          Guid.NewGuid().ToString("N") +
-                          ".zip"
-                      );
+                      using Stream? resourceStream =
+                          assembly.GetManifestResourceStream(
+                              resourceName
+                          );
+
+                      if (resourceStream == null)
+                      {
+                          throw new FileNotFoundException(
+                              "The embedded launcher resource "
+                              + "could not be opened:"
+                              + Environment.NewLine
+                              + resourceName
+                          );
+                      }
+
+                      string tempZip =
+                          Path.Combine(
+                              Path.GetTempPath(),
+                              "Launcher-Le-Eaglercraft-"
+                              + Guid.NewGuid().ToString("N")
+                              + ".zip"
+                          );
 
                       try
                       {
-                          using (FileStream output =
-                              File.Create(tempZip))
+                          using (
+                              FileStream output =
+                              File.Create(tempZip)
+                          )
                           {
-                              resource.CopyTo(output);
+                              resourceStream.CopyTo(output);
                           }
 
                           if (Directory.Exists(root))
                           {
-                              foreach (string file in
-                                  Directory.GetFiles(root, "*", SearchOption.AllDirectories))
+                              foreach (
+                                  string file in
+                                  Directory.GetFiles(
+                                      root,
+                                      "*",
+                                      SearchOption.AllDirectories
+                                  )
+                              )
                               {
                                   try
                                   {
@@ -583,15 +633,17 @@ jobs:
 
                   public LauncherForm(string url)
                   {
-                      Text = "Launcher Le Eaglercraft";
+                      Text =
+                          "Launcher Le Eaglercraft";
 
                       Width = 1280;
                       Height = 800;
 
-                      MinimumSize = new System.Drawing.Size(
-                          900,
-                          600
-                      );
+                      MinimumSize =
+                          new System.Drawing.Size(
+                              900,
+                              600
+                          );
 
                       StartPosition =
                           FormStartPosition.CenterScreen;
@@ -607,20 +659,32 @@ jobs:
                       {
                           try
                           {
-                              await webView.EnsureCoreWebView2Async();
+                              await webView
+                                  .EnsureCoreWebView2Async();
 
-                              webView.CoreWebView2.Settings
-                                  .AreDefaultContextMenusEnabled = true;
+                              webView
+                                  .CoreWebView2
+                                  .Settings
+                                  .AreDefaultContextMenusEnabled =
+                                  true;
 
-                              webView.CoreWebView2.Settings
-                                  .AreDevToolsEnabled = true;
+                              webView
+                                  .CoreWebView2
+                                  .Settings
+                                  .AreDevToolsEnabled =
+                                  true;
 
-                              webView.CoreWebView2.Settings
-                                  .IsStatusBarEnabled = false;
+                              webView
+                                  .CoreWebView2
+                                  .Settings
+                                  .IsStatusBarEnabled =
+                                  false;
 
-                              webView.CoreWebView2.Navigate(
-                                  url + "index.html"
-                              );
+                              webView
+                                  .CoreWebView2
+                                  .Navigate(
+                                      url + "index.html"
+                                  );
                           }
                           catch (Exception ex)
                           {
@@ -638,8 +702,12 @@ jobs:
               internal sealed class LocalServer : IDisposable
               {
                   private readonly string root;
+
                   private readonly TcpListener listener;
-                  private readonly CancellationTokenSource cancellation;
+
+                  private readonly CancellationTokenSource
+                      cancellation;
+
                   private bool disposed;
 
                   public int Port { get; }
@@ -647,14 +715,20 @@ jobs:
                   public string Url =>
                       $"http://127.0.0.1:{Port}/";
 
-                  public LocalServer(string rootPath)
+                  public LocalServer(
+                      string rootPath
+                  )
                   {
-                      root = Path.GetFullPath(rootPath);
+                      root =
+                          Path.GetFullPath(
+                              rootPath
+                          );
 
-                      listener = new TcpListener(
-                          IPAddress.Loopback,
-                          0
-                      );
+                      listener =
+                          new TcpListener(
+                              IPAddress.Loopback,
+                              0
+                          );
 
                       cancellation =
                           new CancellationTokenSource();
@@ -662,39 +736,52 @@ jobs:
                       listener.Start();
 
                       Port =
-                          ((IPEndPoint)listener.LocalEndpoint)
-                          .Port;
+                          ((IPEndPoint)
+                              listener.LocalEndpoint)
+                              .Port;
                   }
 
                   public void Start()
                   {
                       _ = Task.Run(
-                          () => AcceptLoopAsync(
-                              cancellation.Token
-                          )
+                          () =>
+                              AcceptLoopAsync(
+                                  cancellation.Token
+                              )
                       );
                   }
 
                   private async Task AcceptLoopAsync(
-                      CancellationToken token)
+                      CancellationToken token
+                  )
                   {
-                      while (!token.IsCancellationRequested)
+                      while (
+                          !token.IsCancellationRequested
+                      )
                       {
-                          TcpClient? client = null;
+                          TcpClient? client =
+                              null;
 
                           try
                           {
                               client =
-                                  await listener.AcceptTcpClientAsync(
-                                      token
-                                  );
+                                  await listener
+                                      .AcceptTcpClientAsync(
+                                          token
+                                      );
 
                               _ = Task.Run(
-                                  () => HandleClientAsync(client, token),
+                                  () =>
+                                      HandleClientAsync(
+                                          client,
+                                          token
+                                      ),
                                   token
                               );
                           }
-                          catch (OperationCanceledException)
+                          catch (
+                              OperationCanceledException
+                          )
                           {
                               break;
                           }
@@ -702,247 +789,313 @@ jobs:
                           {
                               client?.Dispose();
 
-                              if (token.IsCancellationRequested)
+                              if (
+                                  token
+                                      .IsCancellationRequested
+                              )
+                              {
                                   break;
+                              }
                           }
                       }
                   }
 
                   private async Task HandleClientAsync(
                       TcpClient client,
-                      CancellationToken token)
+                      CancellationToken token
+                  )
                   {
                       using (client)
-
-                      try
                       {
-                          client.ReceiveTimeout = 10000;
-                          client.SendTimeout = 10000;
-
-                          using NetworkStream stream =
-                              client.GetStream();
-
-                          byte[] requestBuffer =
-                              new byte[16384];
-
-                          int total = 0;
-
-                          while (total <
-                                 requestBuffer.Length)
+                          try
                           {
-                              int read =
-                                  await stream.ReadAsync(
-                                      requestBuffer.AsMemory(total),
+                              client.ReceiveTimeout =
+                                  10000;
+
+                              client.SendTimeout =
+                                  10000;
+
+                              using NetworkStream stream =
+                                  client.GetStream();
+
+                              byte[] requestBuffer =
+                                  new byte[16384];
+
+                              int total = 0;
+
+                              while (
+                                  total <
+                                  requestBuffer.Length
+                              )
+                              {
+                                  int read =
+                                      await stream.ReadAsync(
+                                          requestBuffer
+                                              .AsMemory(
+                                                  total
+                                              ),
+                                          token
+                                      );
+
+                                  if (read <= 0)
+                                  {
+                                      return;
+                                  }
+
+                                  total += read;
+
+                                  if (
+                                      total >= 4 &&
+                                      requestBuffer[
+                                          total - 4
+                                      ] == 13 &&
+                                      requestBuffer[
+                                          total - 3
+                                      ] == 10 &&
+                                      requestBuffer[
+                                          total - 2
+                                      ] == 13 &&
+                                      requestBuffer[
+                                          total - 1
+                                      ] == 10
+                                  )
+                                  {
+                                      break;
+                                  }
+                              }
+
+                              string request =
+                                  Encoding.ASCII.GetString(
+                                      requestBuffer,
+                                      0,
+                                      total
+                                  );
+
+                              string firstLine =
+                                  request.Split(
+                                      "\r\n",
+                                      StringSplitOptions.None
+                                  )[0];
+
+                              string[] parts =
+                                  firstLine.Split(
+                                      ' ',
+                                      StringSplitOptions
+                                          .RemoveEmptyEntries
+                                  );
+
+                              if (
+                                  parts.Length < 2
+                              )
+                              {
+                                  await SendError(
+                                      stream,
+                                      400,
+                                      "Bad Request"
+                                  );
+
+                                  return;
+                              }
+
+                              string method =
+                                  parts[0];
+
+                              string target =
+                                  parts[1];
+
+                              if (
+                                  !string.Equals(
+                                      method,
+                                      "GET",
+                                      StringComparison
+                                          .OrdinalIgnoreCase
+                                  ) &&
+                                  !string.Equals(
+                                      method,
+                                      "HEAD",
+                                      StringComparison
+                                          .OrdinalIgnoreCase
+                                  )
+                              )
+                              {
+                                  await SendError(
+                                      stream,
+                                      405,
+                                      "Method Not Allowed"
+                                  );
+
+                                  return;
+                              }
+
+                              string pathPart =
+                                  target.Split('?')[0];
+
+                              pathPart =
+                                  Uri.UnescapeDataString(
+                                      pathPart
+                                  );
+
+                              if (
+                                  pathPart == "/" ||
+                                  pathPart.Length == 0
+                              )
+                              {
+                                  pathPart =
+                                      "/index.html";
+                              }
+
+                              if (
+                                  pathPart.Contains('\0') ||
+                                  pathPart.Contains("..")
+                              )
+                              {
+                                  await SendError(
+                                      stream,
+                                      403,
+                                      "Forbidden"
+                                  );
+
+                                  return;
+                              }
+
+                              string relative =
+                                  pathPart
+                                      .TrimStart('/')
+                                      .Replace(
+                                          '/',
+                                          Path.DirectorySeparatorChar
+                                      );
+
+                              string filePath =
+                                  Path.GetFullPath(
+                                      Path.Combine(
+                                          root,
+                                          relative
+                                      )
+                                  );
+
+                              string normalizedRoot =
+                                  root.TrimEnd(
+                                      Path.DirectorySeparatorChar
+                                  )
+                                  +
+                                  Path.DirectorySeparatorChar;
+
+                              if (
+                                  !filePath.StartsWith(
+                                      normalizedRoot,
+                                      StringComparison
+                                          .OrdinalIgnoreCase
+                                  )
+                              )
+                              {
+                                  await SendError(
+                                      stream,
+                                      403,
+                                      "Forbidden"
+                                  );
+
+                                  return;
+                              }
+
+                              if (
+                                  !File.Exists(
+                                      filePath
+                                  )
+                              )
+                              {
+                                  await SendError(
+                                      stream,
+                                      404,
+                                      "Not Found"
+                                  );
+
+                                  return;
+                              }
+
+                              byte[] data =
+                                  await File.ReadAllBytesAsync(
+                                      filePath,
                                       token
                                   );
 
-                              if (read <= 0)
-                                  return;
+                              string mime =
+                                  GetMimeType(
+                                      filePath
+                                  );
 
-                              total += read;
+                              string headers =
+                                  "HTTP/1.1 200 OK\r\n"
+                                  + $"Content-Type: {mime}\r\n"
+                                  + $"Content-Length: {data.Length}\r\n"
+                                  + "Cache-Control: no-cache\r\n"
+                                  + "Cross-Origin-Opener-Policy: same-origin\r\n"
+                                  + "Cross-Origin-Embedder-Policy: require-corp\r\n"
+                                  + "Cross-Origin-Resource-Policy: same-origin\r\n"
+                                  + "X-Content-Type-Options: nosniff\r\n"
+                                  + "Connection: close\r\n"
+                                  + "\r\n";
 
-                              if (total >= 4 &&
-                                  requestBuffer[total - 4] == 13 &&
-                                  requestBuffer[total - 3] == 10 &&
-                                  requestBuffer[total - 2] == 13 &&
-                                  requestBuffer[total - 1] == 10)
-                              {
-                                  break;
-                              }
-                          }
+                              byte[] headerBytes =
+                                  Encoding.ASCII.GetBytes(
+                                      headers
+                                  );
 
-                          string request =
-                              Encoding.ASCII.GetString(
-                                  requestBuffer,
-                                  0,
-                                  total
-                              );
-
-                          string firstLine =
-                              request.Split(
-                                  "\r\n",
-                                  StringSplitOptions.None
-                              )[0];
-
-                          string[] parts =
-                              firstLine.Split(
-                                  ' ',
-                                  StringSplitOptions.RemoveEmptyEntries
-                              );
-
-                          if (parts.Length < 2)
-                          {
-                              await SendError(
-                                  stream,
-                                  400,
-                                  "Bad Request"
-                              );
-
-                              return;
-                          }
-
-                          string method = parts[0];
-
-                          string target = parts[1];
-
-                          if (!string.Equals(
-                                  method,
-                                  "GET",
-                                  StringComparison.OrdinalIgnoreCase) &&
-                              !string.Equals(
-                                  method,
-                                  "HEAD",
-                                  StringComparison.OrdinalIgnoreCase))
-                          {
-                              await SendError(
-                                  stream,
-                                  405,
-                                  "Method Not Allowed"
-                              );
-
-                              return;
-                          }
-
-                          string pathPart =
-                              target.Split('?')[0];
-
-                          pathPart =
-                              Uri.UnescapeDataString(
-                                  pathPart
-                              );
-
-                          if (pathPart == "/" ||
-                              pathPart.Length == 0)
-                          {
-                              pathPart = "/index.html";
-                          }
-
-                          if (pathPart.Contains('\0') ||
-                              pathPart.Contains(".."))
-                          {
-                              await SendError(
-                                  stream,
-                                  403,
-                                  "Forbidden"
-                              );
-
-                              return;
-                          }
-
-                          string relative =
-                              pathPart.TrimStart('/')
-                              .Replace(
-                                  '/',
-                                  Path.DirectorySeparatorChar
-                              );
-
-                          string filePath =
-                              Path.GetFullPath(
-                                  Path.Combine(
-                                      root,
-                                      relative
-                                  )
-                              );
-
-                          string normalizedRoot =
-                              root.TrimEnd(
-                                  Path.DirectorySeparatorChar
-                              ) +
-                              Path.DirectorySeparatorChar;
-
-                          if (!filePath.StartsWith(
-                                  normalizedRoot,
-                                  StringComparison.OrdinalIgnoreCase))
-                          {
-                              await SendError(
-                                  stream,
-                                  403,
-                                  "Forbidden"
-                              );
-
-                              return;
-                          }
-
-                          if (!File.Exists(filePath))
-                          {
-                              await SendError(
-                                  stream,
-                                  404,
-                                  "Not Found"
-                              );
-
-                              return;
-                          }
-
-                          FileInfo info =
-                              new FileInfo(filePath);
-
-                          string mime =
-                              GetMimeType(filePath);
-
-                          byte[] data =
-                              File.ReadAllBytes(filePath);
-
-                          string headers =
-                              "HTTP/1.1 200 OK\r\n" +
-                              $"Content-Type: {mime}\r\n" +
-                              $"Content-Length: {data.Length}\r\n" +
-                              "Cache-Control: no-cache\r\n" +
-                              "Cross-Origin-Opener-Policy: same-origin\r\n" +
-                              "Cross-Origin-Embedder-Policy: require-corp\r\n" +
-                              "Cross-Origin-Resource-Policy: same-origin\r\n" +
-                              "X-Content-Type-Options: nosniff\r\n" +
-                              "Connection: close\r\n" +
-                              "\r\n";
-
-                          byte[] headerBytes =
-                              Encoding.ASCII.GetBytes(headers);
-
-                          await stream.WriteAsync(
-                              headerBytes,
-                              token
-                          );
-
-                          if (!string.Equals(
-                                  method,
-                                  "HEAD",
-                                  StringComparison.OrdinalIgnoreCase))
-                          {
                               await stream.WriteAsync(
-                                  data,
+                                  headerBytes,
                                   token
                               );
+
+                              if (
+                                  !string.Equals(
+                                      method,
+                                      "HEAD",
+                                      StringComparison
+                                          .OrdinalIgnoreCase
+                                  )
+                              )
+                              {
+                                  await stream.WriteAsync(
+                                      data,
+                                      token
+                                  );
+                              }
                           }
-                      }
-                      catch
-                      {
+                          catch
+                          {
+                          }
                       }
                   }
 
                   private static async Task SendError(
                       NetworkStream stream,
                       int status,
-                      string message)
+                      string message
+                  )
                   {
                       string body =
                           $"<html><body><h1>{status} {message}</h1></body></html>";
 
                       byte[] bodyBytes =
-                          Encoding.UTF8.GetBytes(body);
+                          Encoding.UTF8.GetBytes(
+                              body
+                          );
 
                       string headers =
-                          $"HTTP/1.1 {status} {message}\r\n" +
-                          "Content-Type: text/html; charset=utf-8\r\n" +
-                          $"Content-Length: {bodyBytes.Length}\r\n" +
-                          "Cache-Control: no-cache\r\n" +
-                          "Cross-Origin-Opener-Policy: same-origin\r\n" +
-                          "Cross-Origin-Embedder-Policy: require-corp\r\n" +
-                          "Cross-Origin-Resource-Policy: same-origin\r\n" +
-                          "Connection: close\r\n" +
-                          "\r\n";
+                          $"HTTP/1.1 {status} {message}\r\n"
+                          + "Content-Type: text/html; charset=utf-8\r\n"
+                          + $"Content-Length: {bodyBytes.Length}\r\n"
+                          + "Cache-Control: no-cache\r\n"
+                          + "Cross-Origin-Opener-Policy: same-origin\r\n"
+                          + "Cross-Origin-Embedder-Policy: require-corp\r\n"
+                          + "Cross-Origin-Resource-Policy: same-origin\r\n"
+                          + "Connection: close\r\n"
+                          + "\r\n";
 
                       byte[] headerBytes =
-                          Encoding.ASCII.GetBytes(headers);
+                          Encoding.ASCII.GetBytes(
+                              headers
+                          );
 
                       await stream.WriteAsync(
                           headerBytes
@@ -954,11 +1107,13 @@ jobs:
                   }
 
                   private static string GetMimeType(
-                      string path)
+                      string path
+                  )
                   {
                       string ext =
-                          Path.GetExtension(path)
-                          .ToLowerInvariant();
+                          Path.GetExtension(
+                              path
+                          ).ToLowerInvariant();
 
                       return ext switch
                       {
@@ -977,16 +1132,10 @@ jobs:
                           ".wasm" =>
                               "application/wasm",
 
-                          ".epk" =>
+                          ".epk" or ".epw" =>
                               "application/octet-stream",
 
-                          ".epw" =>
-                              "application/octet-stream",
-
-                          ".bin" =>
-                              "application/octet-stream",
-
-                          ".data" =>
+                          ".bin" or ".data" =>
                               "application/octet-stream",
 
                           ".png" =>
@@ -1039,7 +1188,9 @@ jobs:
                   public void Dispose()
                   {
                       if (disposed)
+                      {
                           return;
+                      }
 
                       disposed = true;
 
@@ -1063,16 +1214,21 @@ jobs:
                   }
               }
           }
-          '@ | Set-Content -Path desktop\Program.cs -Encoding UTF8
+          '@ | Set-Content `
+            -Path desktop\Program.cs `
+            -Encoding UTF8
 
       # ============================================================
-      # 25. CREATE INTERNAL ZIP
+      # 13. CREATE EMBEDDED ZIP
       # ============================================================
       - name: Create embedded launcher archive
         shell: pwsh
         run: |
-          $payload = "${{ github.workspace }}\build\payload"
-          $zip = "${{ github.workspace }}\desktop\launcher.zip"
+          $payload =
+            "${{ github.workspace }}\build\payload"
+
+          $zip =
+            "${{ github.workspace }}\desktop\launcher.zip"
 
           if (Test-Path $zip) {
             Remove-Item $zip -Force
@@ -1087,17 +1243,68 @@ jobs:
             throw "launcher.zip was not created."
           }
 
-          Write-Host "Embedded archive created:"
-          Get-Item $zip | Select-Object FullName, Length
+          Write-Host "Embedded launcher archive created."
+
+          Get-Item $zip |
+            Select-Object FullName, Length
 
       # ============================================================
-      # 26. RESTORE / BUILD / PUBLISH
+      # 14. VERIFY EMBEDDED ZIP BEFORE BUILD
+      # ============================================================
+      - name: Verify embedded archive
+        shell: pwsh
+        run: |
+          $zip =
+            "${{ github.workspace }}\desktop\launcher.zip"
+
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+          $archive =
+            [System.IO.Compression.ZipFile]::OpenRead(
+              $zip
+            )
+
+          try {
+            $index =
+              $archive.Entries |
+              Where-Object {
+                $_.FullName -eq "index.html"
+              }
+
+            if (-not $index) {
+              throw "index.html is missing from launcher.zip"
+            }
+
+            $gameDirectories =
+              $archive.Entries |
+              Where-Object {
+                $_.FullName -like "games/*/index.html"
+              }
+
+            Write-Host ""
+            Write-Host "Launcher archive verified."
+            Write-Host "Game index files found: $($gameDirectories.Count)"
+
+            if ($gameDirectories.Count -lt 13) {
+              throw "Expected at least 13 game index files."
+            }
+          }
+          finally {
+            $archive.Dispose()
+          }
+
+      # ============================================================
+      # 15. RESTORE .NET PROJECT
       # ============================================================
       - name: Restore project
         shell: pwsh
         run: |
-          dotnet restore desktop\Launcher-Le-Eaglercraft.csproj
+          dotnet restore `
+            desktop\Launcher-Le-Eaglercraft.csproj
 
+      # ============================================================
+      # 16. BUILD SINGLE EXE
+      # ============================================================
       - name: Publish single EXE
         shell: pwsh
         run: |
@@ -1112,12 +1319,13 @@ jobs:
             -o dist
 
       # ============================================================
-      # 27. VERIFY EXE
+      # 17. VERIFY EXE
       # ============================================================
       - name: Verify EXE
         shell: pwsh
         run: |
-          $exe = "${{ github.workspace }}\dist\Launcher-Le-Eaglercraft.exe"
+          $exe =
+            "${{ github.workspace }}\dist\Launcher-Le-Eaglercraft.exe"
 
           if (-not (Test-Path $exe)) {
             throw "Launcher EXE was not created."
@@ -1134,14 +1342,21 @@ jobs:
           Write-Host "=========================================="
 
       # ============================================================
-      # 28. CREATE RELEASE CHANGELOG
+      # 18. CREATE RELEASE CHANGELOG
       # ============================================================
       - name: Create release changelog
         shell: pwsh
         run: |
-          $sha = "${{ github.sha }}".Substring(0, 7)
-          $run = "${{ github.run_number }}"
-          $date = (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm 'UTC'")
+          $sha =
+            "${{ github.sha }}".Substring(0, 7)
+
+          $run =
+            "${{ github.run_number }}"
+
+          $date =
+            (Get-Date).ToUniversalTime().ToString(
+              "yyyy-MM-dd HH:mm 'UTC'"
+            )
 
           @"
           # Launcher Le Eaglercraft — Build $run
@@ -1149,22 +1364,29 @@ jobs:
           ## Changes
 
           ### Fixed
-          - Fixed newer Eaglercraft versions failing to load inside the Windows EXE.
-          - Replaced the previous WebView2 local-folder loading method with an internal localhost HTTP server.
+
+          - Fixed the embedded launcher archive lookup.
+          - Fixed the Windows EXE failing to find the embedded launcher files.
+          - Replaced the previous WebView2 virtual-folder loading method.
+          - Added an internal localhost HTTP server.
           - Added Cross-Origin-Opener-Policy support.
           - Added Cross-Origin-Embedder-Policy support.
           - Added Cross-Origin-Resource-Policy support.
-          - Added proper WASM MIME type handling.
-          - Added EPK/EPW/binary resource handling.
-          - Added local HTTP status handling for missing resources.
-          - Improved compatibility with newer WASM-based Eaglercraft builds.
+          - Added WASM MIME type support.
+          - Added EPK and EPW resource support.
+          - Added binary resource support.
+          - Added proper HTTP 404 handling for missing game resources.
+          - Improved compatibility with newer WASM-based Eaglercraft versions.
 
           ### Launcher
-          - Kept the existing Launcher Le Eaglercraft interface.
-          - Existing launcher game buttons are redirected to the embedded game folders.
-          - The launcher and games are packaged together.
 
-          ### Included Versions
+          - Kept the existing Launcher Le Eaglercraft interface.
+          - Existing launcher buttons continue to point to their corresponding versions.
+          - Game URLs are rewritten during the EXE build.
+          - All game files are bundled into the launcher.
+
+          ### Included Repositories
+
           - secret-stuff
           - secret-stuff-v2
           - secret-stuff-v3
@@ -1180,10 +1402,30 @@ jobs:
           - secret-stuff-v13
 
           ### Packaging
-          - All launcher files are embedded into the EXE.
+
+          - Launcher files are embedded into the EXE.
           - All 13 game repositories are embedded into the EXE.
-          - The release contains one downloadable Windows EXE instead of a ZIP archive.
-          - The application uses a self-contained .NET Windows build.
+          - No separate game folders are required next to the EXE.
+          - The GitHub Release contains the Windows EXE directly.
+          - The build is self-contained for Windows x64.
+
+          ## Technical Changes
+
+          The launcher now starts an internal localhost HTTP server when the
+          EXE launches.
+
+          The server provides:
+
+          - COOP headers
+          - COEP headers
+          - CORP headers
+          - WASM MIME types
+          - EPK/EPW resource handling
+          - Local game resource serving
+          - HTTP 404 responses
+
+          This is intended to improve compatibility with newer Eaglercraft
+          versions that require browser features such as SharedArrayBuffer.
 
           ## Build Information
 
@@ -1194,19 +1436,23 @@ jobs:
           - Runtime: .NET 10
           - Web engine: Microsoft WebView2
 
-          ## Notes
+          ## Download
 
-          The launcher starts a local HTTP server internally so newer WASM-based
-          versions can receive the HTTP headers they require. No separate launcher
-          folder is required next to the EXE.
-          "@ | Set-Content `
-            -Path release-notes.md `
-            -Encoding UTF8
+          The release contains:
+
+          - Launcher-Le-Eaglercraft.exe
+
+          No ZIP download is required.
+
+          "@ |
+            Set-Content `
+              -Path release-notes.md `
+              -Encoding UTF8
 
           Write-Host "Release changelog created."
 
       # ============================================================
-      # 29. CREATE GITHUB RELEASE
+      # 19. CREATE GITHUB RELEASE
       # ============================================================
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
