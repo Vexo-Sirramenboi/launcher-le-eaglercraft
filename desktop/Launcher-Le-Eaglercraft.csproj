@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+
+    <TargetFramework>net8.0-windows</TargetFramework>
+
+    <UseWindowsForms>true</UseWindowsForms>
+
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+
+    <PlatformTarget>x64</PlatformTarget>
+
+    <Nullable>enable</Nullable>
+
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <AssemblyName>Launcher-Le-Eaglercraft</AssemblyName>
+
+    <RootNamespace>LauncherLeEaglercraft</RootNamespace>
+
+    <ApplicationIcon>app.ico</ApplicationIcon>
+
+    <EnableDefaultApplicationIcon>false</EnableDefaultApplicationIcon>
+
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference
+      Include="CefSharp.WinForms.NETCore"
+      Version="144.0.270" />
+  </ItemGroup>
+
+</Project>
