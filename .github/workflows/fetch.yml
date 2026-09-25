@@ -92,13 +92,13 @@ jobs:
         shell: pwsh
         run: |
           $source =
-            "${{ github.workspace }}\launcher-repo\launcher"
+            "${{ github.workspace }}\launcher-repo"
 
           $destination =
             "${{ github.workspace }}\build\launcher"
 
           if (-not (Test-Path $source)) {
-            throw "The launcher directory was not found."
+            throw "The launcher repository was not found."
           }
 
           Get-ChildItem `
@@ -125,6 +125,10 @@ jobs:
               "$destination\.github" `
               -Recurse `
               -Force
+          }
+
+          if (-not (Test-Path "$destination\index.html")) {
+            throw "index.html was not found in the launcher repository root."
           }
 
           Write-Host "Existing launcher copied successfully."
@@ -347,7 +351,6 @@ jobs:
               Old = "https://Vexo-Sirramenboi.github.io/secret-stuff/"
               New = "/games/secret-stuff/"
             },
-
             @{
               Old = "https://vexo-sirramenboi.github.io/secret-stuff-v2/"
               New = "/games/secret-stuff-v2/"
@@ -356,7 +359,6 @@ jobs:
               Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v2/"
               New = "/games/secret-stuff-v2/"
             },
-
             @{
               Old = "https://vexo-sirramenboi.github.io/secret-stuff-v3/"
               New = "/games/secret-stuff-v3/"
@@ -365,7 +367,6 @@ jobs:
               Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v3/"
               New = "/games/secret-stuff-v3/"
             },
-
             @{
               Old = "https://vexo-sirramenboi.github.io/secret-stuff-v4/"
               New = "/games/secret-stuff-v4/"
@@ -374,7 +375,6 @@ jobs:
               Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v4/"
               New = "/games/secret-stuff-v4/"
             },
-
             @{
               Old = "https://vexo-sirramenboi.github.io/secret-stuff-v5/"
               New = "/games/secret-stuff-v5/"
@@ -383,7 +383,6 @@ jobs:
               Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v5/"
               New = "/games/secret-stuff-v5/"
             },
-
             @{
               Old = "https://vexo-sirramenboi.github.io/secret-stuff-v6/"
               New = "/games/secret-stuff-v6/"
@@ -392,7 +391,6 @@ jobs:
               Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v6/"
               New = "/games/secret-stuff-v6/"
             },
-
             @{
               Old = "https://vexo-sirramenboi.github.io/secret-stuff-v7/"
               New = "/games/secret-stuff-v7/"
@@ -401,7 +399,6 @@ jobs:
               Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v7/"
               New = "/games/secret-stuff-v7/"
             },
-
             @{
               Old = "https://vexo-sirramenboi.github.io/secret-stuff-v8/"
               New = "/games/secret-stuff-v8/"
@@ -410,7 +407,6 @@ jobs:
               Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v8/"
               New = "/games/secret-stuff-v8/"
             },
-
             @{
               Old = "https://vexo-sirramenboi.github.io/secret-stuff-v9/"
               New = "/games/secret-stuff-v9/"
@@ -419,7 +415,6 @@ jobs:
               Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v9/"
               New = "/games/secret-stuff-v9/"
             },
-
             @{
               Old = "https://vexo-sirramenboi.github.io/secret-stuff-v10/"
               New = "/games/secret-stuff-v10/"
@@ -428,7 +423,6 @@ jobs:
               Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v10/"
               New = "/games/secret-stuff-v10/"
             },
-
             @{
               Old = "https://vexo-sirramenboi.github.io/secret-stuff-v11/"
               New = "/games/secret-stuff-v11/"
@@ -437,7 +431,6 @@ jobs:
               Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v11/"
               New = "/games/secret-stuff-v11/"
             },
-
             @{
               Old = "https://vexo-sirramenboi.github.io/secret-stuff-v12/"
               New = "/games/secret-stuff-v12/"
@@ -446,7 +439,6 @@ jobs:
               Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v12/"
               New = "/games/secret-stuff-v12/"
             },
-
             @{
               Old = "https://vexo-sirramenboi.github.io/secret-stuff-v13/"
               New = "/games/secret-stuff-v13/"
@@ -473,7 +465,7 @@ jobs:
           Write-Host "Launcher URLs rewritten."
 
       # ============================================================
-      # COPY WEBSITE INTO DESKTOP PROJECT
+      # CREATE WEBSITE PAYLOAD
       # ============================================================
 
       - name: Create website payload
@@ -788,9 +780,7 @@ jobs:
                           }
 
                           path =
-                              path.TrimStart(
-                                  '/'
-                              );
+                              path.TrimStart('/');
 
                           path =
                               path.Replace(
@@ -799,9 +789,7 @@ jobs:
                               );
 
                           if (
-                              path.Contains(
-                                  ".."
-                              )
+                              path.Contains("..")
                           )
                           {
                               context.Response.StatusCode =
@@ -1100,7 +1088,7 @@ jobs:
               -Encoding UTF8
 
       # ============================================================
-      # RESTORE CEF PROJECT
+      # RESTORE CEF
       # ============================================================
 
       - name: Restore CefSharp project
@@ -1143,7 +1131,7 @@ jobs:
           Write-Host "CEF launcher built successfully."
 
       # ============================================================
-      # CREATE FINAL BOOTSTRAP PROJECT
+      # CREATE BOOTSTRAP PROJECT
       # ============================================================
 
       - name: Create bootstrap project
@@ -1215,7 +1203,7 @@ jobs:
             -Path $payload |
             Out-Null
 
-          # Copy entire CEF launcher output.
+          # Copy CEF launcher files.
           Get-ChildItem `
             -LiteralPath "${{ github.workspace }}\build\desktop" `
             -Force |
@@ -1224,7 +1212,7 @@ jobs:
               -Recurse `
               -Force
 
-          # Copy the complete launcher website.
+          # Copy website.
           New-Item `
             -ItemType Directory `
             -Force `
@@ -1239,7 +1227,15 @@ jobs:
               -Recurse `
               -Force
 
-          # Copy the bootstrap runner.
+          Write-Host "Complete payload assembled."
+
+      # ============================================================
+      # CREATE BOOTSTRAP PROGRAM
+      # ============================================================
+
+      - name: Create bootstrap program
+        shell: pwsh
+        run: |
           @'
           using System;
           using System.Diagnostics;
@@ -1286,15 +1282,12 @@ jobs:
                           )
                           {
                               throw new FileNotFoundException(
-                                  "The embedded CEF launcher could not be found.",
+                                  "The embedded CEF launcher was not found.",
                                   launcher
                               );
                           }
 
-                          var process =
-                              new Process();
-
-                          process.StartInfo =
+                          ProcessStartInfo startInfo =
                               new ProcessStartInfo
                               {
                                   FileName =
@@ -1307,7 +1300,9 @@ jobs:
                                       false
                               };
 
-                          process.Start();
+                          Process.Start(
+                              startInfo
+                          );
                       }
                       catch (Exception ex)
                       {
@@ -1397,10 +1392,6 @@ jobs:
             Set-Content `
               -Path "bootstrap\Program.cs" `
               -Encoding UTF8
-
-          # Re-create the bootstrap project because Program.cs
-          # is intentionally generated above.
-          Write-Host "Bootstrap source created."
 
       # ============================================================
       # CREATE PAYLOAD ZIP
