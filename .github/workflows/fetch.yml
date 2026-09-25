@@ -33,11 +33,8 @@ jobs:
           New-Item -ItemType Directory -Force -Path "$root\build\website" | Out-Null
           New-Item -ItemType Directory -Force -Path "$root\build\repos" | Out-Null
           New-Item -ItemType Directory -Force -Path "$root\build\desktop" | Out-Null
+          New-Item -ItemType Directory -Force -Path "$root\build\cef-publish" | Out-Null
           New-Item -ItemType Directory -Force -Path "$root\build\bootstrap" | Out-Null
-
-      # ------------------------------------------------------------
-      # COPY THE EXISTING LAUNCHER WEBSITE
-      # ------------------------------------------------------------
 
       - name: Copy launcher website
         shell: pwsh
@@ -62,10 +59,6 @@ jobs:
           }
 
           Write-Host "Launcher website copied successfully."
-
-      # ------------------------------------------------------------
-      # CHECK OUT ALL 13 GAME REPOSITORIES
-      # ------------------------------------------------------------
 
       - name: Checkout secret-stuff
         uses: actions/checkout@v4
@@ -145,10 +138,6 @@ jobs:
           repository: Vexo-Sirramenboi/secret-stuff-v13
           path: build/repos/secret-stuff-v13
 
-      # ------------------------------------------------------------
-      # REMOVE GIT DATA
-      # ------------------------------------------------------------
-
       - name: Remove repository metadata
         shell: pwsh
         run: |
@@ -161,10 +150,6 @@ jobs:
               Remove-Item $git -Recurse -Force
             }
           }
-
-      # ------------------------------------------------------------
-      # PUT EACH GAME INTO THE LAUNCHER
-      # ------------------------------------------------------------
 
       - name: Copy game repositories into launcher
         shell: pwsh
@@ -206,19 +191,11 @@ jobs:
 
           Write-Host "All 13 game repositories copied."
 
-      # ------------------------------------------------------------
-      # CREATE CEF# PROJECT
-      # IMPORTANT:
-      # THIS IS OUTSIDE THE WEBSITE DIRECTORY.
-      # ------------------------------------------------------------
-
       - name: Create CefSharp launcher project
         shell: pwsh
         run: |
           $root = "${{ github.workspace }}"
           $desktop = "$root\build\desktop"
-
-          New-Item -ItemType Directory -Force -Path $desktop | Out-Null
 
           @'
           <Project Sdk="Microsoft.NET.Sdk">
@@ -242,10 +219,6 @@ jobs:
           </Project>
           '@ | Set-Content "$desktop\Launcher-Le-Eaglercraft.csproj" -Encoding UTF8
 
-      # ------------------------------------------------------------
-      # CREATE CEF# PROGRAM
-      # ------------------------------------------------------------
-
       - name: Create CefSharp Program.cs
         shell: pwsh
         run: |
@@ -254,7 +227,6 @@ jobs:
 
           @'
           using System;
-          using System.Diagnostics;
           using System.IO;
           using System.Net;
           using System.Net.Sockets;
@@ -545,7 +517,6 @@ jobs:
                               Encoding.ASCII.GetBytes(headers);
 
                           await stream.WriteAsync(headerBytes);
-
                           await stream.WriteAsync(data);
                       }
                   }
@@ -647,19 +618,11 @@ jobs:
           }
           '@ | Set-Content "$desktop\Program.cs" -Encoding UTF8
 
-      # ------------------------------------------------------------
-      # RESTORE CEF#
-      # ------------------------------------------------------------
-
       - name: Restore CefSharp
         shell: pwsh
         working-directory: build/desktop
         run: |
           dotnet restore Launcher-Le-Eaglercraft.csproj
-
-      # ------------------------------------------------------------
-      # PUBLISH CEF# LAUNCHER
-      # ------------------------------------------------------------
 
       - name: Publish CefSharp launcher
         shell: pwsh
@@ -672,12 +635,6 @@ jobs:
             -p:PublishSingleFile=false `
             -p:IncludeNativeLibrariesForSelfExtract=false `
             -o "${{ github.workspace }}\build\cef-publish"
-
-      # ------------------------------------------------------------
-      # COPY WEBSITE INTO CEF PAYLOAD
-      # IMPORTANT:
-      # THE WEBSITE IS COPIED AFTER THE DESKTOP PROJECT IS BUILT.
-      # ------------------------------------------------------------
 
       - name: Assemble CEF payload
         shell: pwsh
@@ -710,10 +667,6 @@ jobs:
 
           Write-Host "CEF payload assembled successfully."
 
-      # ------------------------------------------------------------
-      # CREATE BOOTSTRAP PROJECT
-      # ------------------------------------------------------------
-
       - name: Create single EXE bootstrap project
         shell: pwsh
         run: |
@@ -726,6 +679,7 @@ jobs:
             <PropertyGroup>
               <OutputType>WinExe</OutputType>
               <TargetFramework>net8.0-windows</TargetFramework>
+              <UseWindowsForms>true</UseWindowsForms>
               <ImplicitUsings>enable</ImplicitUsings>
               <Nullable>enable</Nullable>
               <RuntimeIdentifier>win-x64</RuntimeIdentifier>
@@ -743,10 +697,6 @@ jobs:
 
           </Project>
           '@ | Set-Content "$bootstrap\Launcher-Le-Eaglercraft.csproj" -Encoding UTF8
-
-      # ------------------------------------------------------------
-      # ZIP THE CEF PAYLOAD
-      # ------------------------------------------------------------
 
       - name: Create embedded payload
         shell: pwsh
@@ -772,10 +722,6 @@ jobs:
 
           Write-Host "Payload ZIP created."
 
-      # ------------------------------------------------------------
-      # CREATE BOOTSTRAP PROGRAM
-      # ------------------------------------------------------------
-
       - name: Create bootstrap Program.cs
         shell: pwsh
         run: |
@@ -784,11 +730,11 @@ jobs:
 
           @'
           using System;
-          using System.Diagnostics;
           using System.IO;
           using System.IO.Compression;
           using System.Linq;
           using System.Reflection;
+          using System.Diagnostics;
           using System.Windows.Forms;
 
           namespace LauncherLeEaglercraftBootstrap
@@ -928,10 +874,6 @@ jobs:
           }
           '@ | Set-Content "$bootstrap\Program.cs" -Encoding UTF8
 
-      # ------------------------------------------------------------
-      # PUBLISH FINAL SINGLE EXE
-      # ------------------------------------------------------------
-
       - name: Publish final EXE
         shell: pwsh
         working-directory: build/bootstrap
@@ -946,10 +888,6 @@ jobs:
             -p:IncludeNativeLibrariesForSelfExtract=true `
             -p:EnableCompressionInSingleFile=true `
             -o "${{ github.workspace }}\release"
-
-      # ------------------------------------------------------------
-      # VERIFY FINAL EXE
-      # ------------------------------------------------------------
 
       - name: Verify final EXE
         shell: pwsh
@@ -971,10 +909,6 @@ jobs:
           if ($size -lt 1000000) {
             Write-Warning "The EXE is unexpectedly small."
           }
-
-      # ------------------------------------------------------------
-      # CREATE CHANGELOG
-      # ------------------------------------------------------------
 
       - name: Create changelog
         shell: pwsh
@@ -1024,10 +958,6 @@ jobs:
 
           The final release contains one EXE asset.
           '@ | Set-Content "$root\CHANGELOG.md" -Encoding UTF8
-
-      # ------------------------------------------------------------
-      # CREATE GITHUB RELEASE
-      # ------------------------------------------------------------
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
