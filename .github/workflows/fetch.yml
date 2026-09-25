@@ -1,7 +1,10 @@
-name: Build Launcher Le Eaglercraft
+name: Build Launcher EXE
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -11,287 +14,165 @@ jobs:
     runs-on: windows-latest
 
     steps:
-
-      # ============================================================
-      # CHECK OUT MAIN REPOSITORY
-      # ============================================================
-
       - name: Checkout launcher repository
         uses: actions/checkout@v4
         with:
           path: launcher-repo
 
-      # ============================================================
-      # SET UP .NET
-      # ============================================================
-
-      - name: Setup .NET 8
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
 
-      - name: Show .NET information
-        shell: pwsh
-        run: |
-          dotnet --info
-
-      # ============================================================
-      # CREATE BUILD DIRECTORIES
-      # ============================================================
-
       - name: Create build directories
         shell: pwsh
         run: |
-          New-Item `
-            -ItemType Directory `
-            -Force `
-            -Path "build" |
-            Out-Null
+          $root = "${{ github.workspace }}"
 
-          New-Item `
-            -ItemType Directory `
-            -Force `
-            -Path "build\launcher" |
-            Out-Null
+          New-Item -ItemType Directory -Force -Path "$root\build" | Out-Null
+          New-Item -ItemType Directory -Force -Path "$root\build\website" | Out-Null
+          New-Item -ItemType Directory -Force -Path "$root\build\repos" | Out-Null
+          New-Item -ItemType Directory -Force -Path "$root\build\desktop" | Out-Null
+          New-Item -ItemType Directory -Force -Path "$root\build\bootstrap" | Out-Null
 
-          New-Item `
-            -ItemType Directory `
-            -Force `
-            -Path "build\games" |
-            Out-Null
+      # ------------------------------------------------------------
+      # COPY THE EXISTING LAUNCHER WEBSITE
+      # ------------------------------------------------------------
 
-          New-Item `
-            -ItemType Directory `
-            -Force `
-            -Path "build\desktop" |
-            Out-Null
-
-          New-Item `
-            -ItemType Directory `
-            -Force `
-            -Path "desktop\www" |
-            Out-Null
-
-          New-Item `
-            -ItemType Directory `
-            -Force `
-            -Path "bootstrap" |
-            Out-Null
-
-          New-Item `
-            -ItemType Directory `
-            -Force `
-            -Path "release" |
-            Out-Null
-
-      # ============================================================
-      # COPY EXISTING LAUNCHER
-      # ============================================================
-
-      - name: Copy existing launcher
+      - name: Copy launcher website
         shell: pwsh
         run: |
-          $source =
-            "${{ github.workspace }}\launcher-repo"
+          $root = "${{ github.workspace }}"
+          $source = "$root\launcher-repo"
+          $destination = "$root\build\website"
 
-          $destination =
-            "${{ github.workspace }}\build\launcher"
+          Write-Host "Launcher source: $source"
+          Write-Host "Website destination: $destination"
 
-          if (-not (Test-Path $source)) {
-            throw "The launcher repository was not found."
+          Get-ChildItem -Force $source | ForEach-Object {
+            if ($_.Name -ne ".git") {
+              Copy-Item $_.FullName $destination -Recurse -Force
+            }
           }
 
-          Get-ChildItem `
-            -LiteralPath $source `
-            -Force |
-            Where-Object {
-              $_.Name -ne ".git" -and
-              $_.Name -ne ".github"
-            } |
-            Copy-Item `
-              -Destination $destination `
-              -Recurse `
-              -Force
-
-          if (Test-Path "$destination\.git") {
-            Remove-Item `
-              "$destination\.git" `
-              -Recurse `
-              -Force
+          if (!(Test-Path "$destination\index.html")) {
+            Write-Error "index.html was not found in the launcher repository root."
+            Get-ChildItem -Force $source
+            exit 1
           }
 
-          if (Test-Path "$destination\.github") {
-            Remove-Item `
-              "$destination\.github" `
-              -Recurse `
-              -Force
-          }
+          Write-Host "Launcher website copied successfully."
 
-          if (-not (Test-Path "$destination\index.html")) {
-            throw "index.html was not found in the launcher repository root."
-          }
+      # ------------------------------------------------------------
+      # CHECK OUT ALL 13 GAME REPOSITORIES
+      # ------------------------------------------------------------
 
-          Write-Host "Existing launcher copied successfully."
-
-      # ============================================================
-      # DOWNLOAD SECRET-STUFF
-      # ============================================================
-
-      - name: Download secret-stuff
+      - name: Checkout secret-stuff
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff
-          path: build/games/secret-stuff
+          path: build/repos/secret-stuff
 
-      # ============================================================
-      # DOWNLOAD SECRET-STUFF-V2
-      # ============================================================
-
-      - name: Download secret-stuff-v2
+      - name: Checkout secret-stuff-v2
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v2
-          path: build/games/secret-stuff-v2
+          path: build/repos/secret-stuff-v2
 
-      # ============================================================
-      # DOWNLOAD SECRET-STUFF-V3
-      # ============================================================
-
-      - name: Download secret-stuff-v3
+      - name: Checkout secret-stuff-v3
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v3
-          path: build/games/secret-stuff-v3
+          path: build/repos/secret-stuff-v3
 
-      # ============================================================
-      # DOWNLOAD SECRET-STUFF-V4
-      # ============================================================
-
-      - name: Download secret-stuff-v4
+      - name: Checkout secret-stuff-v4
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v4
-          path: build/games/secret-stuff-v4
+          path: build/repos/secret-stuff-v4
 
-      # ============================================================
-      # DOWNLOAD SECRET-STUFF-V5
-      # ============================================================
-
-      - name: Download secret-stuff-v5
+      - name: Checkout secret-stuff-v5
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v5
-          path: build/games/secret-stuff-v5
+          path: build/repos/secret-stuff-v5
 
-      # ============================================================
-      # DOWNLOAD SECRET-STUFF-V6
-      # ============================================================
-
-      - name: Download secret-stuff-v6
+      - name: Checkout secret-stuff-v6
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v6
-          path: build/games/secret-stuff-v6
+          path: build/repos/secret-stuff-v6
 
-      # ============================================================
-      # DOWNLOAD SECRET-STUFF-V7
-      # ============================================================
-
-      - name: Download secret-stuff-v7
+      - name: Checkout secret-stuff-v7
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v7
-          path: build/games/secret-stuff-v7
+          path: build/repos/secret-stuff-v7
 
-      # ============================================================
-      # DOWNLOAD SECRET-STUFF-V8
-      # ============================================================
-
-      - name: Download secret-stuff-v8
+      - name: Checkout secret-stuff-v8
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v8
-          path: build/games/secret-stuff-v8
+          path: build/repos/secret-stuff-v8
 
-      # ============================================================
-      # DOWNLOAD SECRET-STUFF-V9
-      # ============================================================
-
-      - name: Download secret-stuff-v9
+      - name: Checkout secret-stuff-v9
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v9
-          path: build/games/secret-stuff-v9
+          path: build/repos/secret-stuff-v9
 
-      # ============================================================
-      # DOWNLOAD SECRET-STUFF-V10
-      # ============================================================
-
-      - name: Download secret-stuff-v10
+      - name: Checkout secret-stuff-v10
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v10
-          path: build/games/secret-stuff-v10
+          path: build/repos/secret-stuff-v10
 
-      # ============================================================
-      # DOWNLOAD SECRET-STUFF-V11
-      # ============================================================
-
-      - name: Download secret-stuff-v11
+      - name: Checkout secret-stuff-v11
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v11
-          path: build/games/secret-stuff-v11
+          path: build/repos/secret-stuff-v11
 
-      # ============================================================
-      # DOWNLOAD SECRET-STUFF-V12
-      # ============================================================
-
-      - name: Download secret-stuff-v12
+      - name: Checkout secret-stuff-v12
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v12
-          path: build/games/secret-stuff-v12
+          path: build/repos/secret-stuff-v12
 
-      # ============================================================
-      # DOWNLOAD SECRET-STUFF-V13
-      # ============================================================
-
-      - name: Download secret-stuff-v13
+      - name: Checkout secret-stuff-v13
         uses: actions/checkout@v4
         with:
           repository: Vexo-Sirramenboi/secret-stuff-v13
-          path: build/games/secret-stuff-v13
+          path: build/repos/secret-stuff-v13
 
-      # ============================================================
-      # REMOVE GIT METADATA
-      # ============================================================
+      # ------------------------------------------------------------
+      # REMOVE GIT DATA
+      # ------------------------------------------------------------
 
       - name: Remove repository metadata
         shell: pwsh
         run: |
-          Get-ChildItem `
-            -Path "${{ github.workspace }}\build" `
-            -Directory `
-            -Recurse `
-            -Force |
-            Where-Object {
-              $_.Name -eq ".git"
-            } |
-            Remove-Item `
-              -Recurse `
-              -Force `
-              -ErrorAction SilentlyContinue
+          $root = "${{ github.workspace }}\build\repos"
 
-          Write-Host "Git metadata removed."
+          Get-ChildItem $root -Directory -Force | ForEach-Object {
+            $git = Join-Path $_.FullName ".git"
 
-      # ============================================================
-      # VERIFY ALL 13 REPOSITORIES
-      # ============================================================
+            if (Test-Path $git) {
+              Remove-Item $git -Recurse -Force
+            }
+          }
 
-      - name: Verify all game repositories
+      # ------------------------------------------------------------
+      # PUT EACH GAME INTO THE LAUNCHER
+      # ------------------------------------------------------------
+
+      - name: Copy game repositories into launcher
         shell: pwsh
         run: |
+          $root = "${{ github.workspace }}"
+          $website = "$root\build\website"
+          $repos = "$root\build\repos"
+
           $games = @(
             "secret-stuff",
             "secret-stuff-v2",
@@ -309,270 +190,76 @@ jobs:
           )
 
           foreach ($game in $games) {
+            $source = "$repos\$game"
+            $destination = "$website\$game"
 
-            $path =
-              "${{ github.workspace }}\build\games\$game"
+            Write-Host "Copying $game"
 
-            if (-not (Test-Path $path)) {
-              throw "Missing game repository: $game"
+            New-Item -ItemType Directory -Force -Path $destination | Out-Null
+
+            Get-ChildItem -Force $source | ForEach-Object {
+              if ($_.Name -ne ".git") {
+                Copy-Item $_.FullName $destination -Recurse -Force
+              }
             }
-
-            Write-Host "FOUND: $game"
           }
 
-          Write-Host ""
-          Write-Host "All 13 game repositories downloaded successfully."
+          Write-Host "All 13 game repositories copied."
 
-      # ============================================================
-      # REWRITE GAME URLS
-      # ============================================================
+      # ------------------------------------------------------------
+      # CREATE CEF# PROJECT
+      # IMPORTANT:
+      # THIS IS OUTSIDE THE WEBSITE DIRECTORY.
+      # ------------------------------------------------------------
 
-      - name: Rewrite launcher game URLs
+      - name: Create CefSharp launcher project
         shell: pwsh
         run: |
-          $index =
-            "${{ github.workspace }}\build\launcher\index.html"
+          $root = "${{ github.workspace }}"
+          $desktop = "$root\build\desktop"
 
-          if (-not (Test-Path $index)) {
-            throw "Launcher index.html was not found."
-          }
+          New-Item -ItemType Directory -Force -Path $desktop | Out-Null
 
-          $html =
-            Get-Content `
-              -LiteralPath $index `
-              -Raw
-
-          $replacements = @(
-            @{
-              Old = "https://vexo-sirramenboi.github.io/secret-stuff/"
-              New = "/games/secret-stuff/"
-            },
-            @{
-              Old = "https://Vexo-Sirramenboi.github.io/secret-stuff/"
-              New = "/games/secret-stuff/"
-            },
-            @{
-              Old = "https://vexo-sirramenboi.github.io/secret-stuff-v2/"
-              New = "/games/secret-stuff-v2/"
-            },
-            @{
-              Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v2/"
-              New = "/games/secret-stuff-v2/"
-            },
-            @{
-              Old = "https://vexo-sirramenboi.github.io/secret-stuff-v3/"
-              New = "/games/secret-stuff-v3/"
-            },
-            @{
-              Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v3/"
-              New = "/games/secret-stuff-v3/"
-            },
-            @{
-              Old = "https://vexo-sirramenboi.github.io/secret-stuff-v4/"
-              New = "/games/secret-stuff-v4/"
-            },
-            @{
-              Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v4/"
-              New = "/games/secret-stuff-v4/"
-            },
-            @{
-              Old = "https://vexo-sirramenboi.github.io/secret-stuff-v5/"
-              New = "/games/secret-stuff-v5/"
-            },
-            @{
-              Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v5/"
-              New = "/games/secret-stuff-v5/"
-            },
-            @{
-              Old = "https://vexo-sirramenboi.github.io/secret-stuff-v6/"
-              New = "/games/secret-stuff-v6/"
-            },
-            @{
-              Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v6/"
-              New = "/games/secret-stuff-v6/"
-            },
-            @{
-              Old = "https://vexo-sirramenboi.github.io/secret-stuff-v7/"
-              New = "/games/secret-stuff-v7/"
-            },
-            @{
-              Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v7/"
-              New = "/games/secret-stuff-v7/"
-            },
-            @{
-              Old = "https://vexo-sirramenboi.github.io/secret-stuff-v8/"
-              New = "/games/secret-stuff-v8/"
-            },
-            @{
-              Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v8/"
-              New = "/games/secret-stuff-v8/"
-            },
-            @{
-              Old = "https://vexo-sirramenboi.github.io/secret-stuff-v9/"
-              New = "/games/secret-stuff-v9/"
-            },
-            @{
-              Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v9/"
-              New = "/games/secret-stuff-v9/"
-            },
-            @{
-              Old = "https://vexo-sirramenboi.github.io/secret-stuff-v10/"
-              New = "/games/secret-stuff-v10/"
-            },
-            @{
-              Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v10/"
-              New = "/games/secret-stuff-v10/"
-            },
-            @{
-              Old = "https://vexo-sirramenboi.github.io/secret-stuff-v11/"
-              New = "/games/secret-stuff-v11/"
-            },
-            @{
-              Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v11/"
-              New = "/games/secret-stuff-v11/"
-            },
-            @{
-              Old = "https://vexo-sirramenboi.github.io/secret-stuff-v12/"
-              New = "/games/secret-stuff-v12/"
-            },
-            @{
-              Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v12/"
-              New = "/games/secret-stuff-v12/"
-            },
-            @{
-              Old = "https://vexo-sirramenboi.github.io/secret-stuff-v13/"
-              New = "/games/secret-stuff-v13/"
-            },
-            @{
-              Old = "https://Vexo-Sirramenboi.github.io/secret-stuff-v13/"
-              New = "/games/secret-stuff-v13/"
-            }
-          )
-
-          foreach ($replacement in $replacements) {
-            $html =
-              $html.Replace(
-                $replacement.Old,
-                $replacement.New
-              )
-          }
-
-          Set-Content `
-            -LiteralPath $index `
-            -Value $html `
-            -Encoding UTF8
-
-          Write-Host "Launcher URLs rewritten."
-
-      # ============================================================
-      # CREATE WEBSITE PAYLOAD
-      # ============================================================
-
-      - name: Create website payload
-        shell: pwsh
-        run: |
-          $www =
-            "${{ github.workspace }}\desktop\www"
-
-          if (Test-Path $www) {
-            Remove-Item `
-              $www `
-              -Recurse `
-              -Force
-          }
-
-          New-Item `
-            -ItemType Directory `
-            -Force `
-            -Path $www |
-            Out-Null
-
-          Get-ChildItem `
-            -LiteralPath "${{ github.workspace }}\build\launcher" `
-            -Force |
-            Copy-Item `
-              -Destination $www `
-              -Recurse `
-              -Force
-
-          New-Item `
-            -ItemType Directory `
-            -Force `
-            -Path "$www\games" |
-            Out-Null
-
-          Get-ChildItem `
-            -LiteralPath "${{ github.workspace }}\build\games" `
-            -Directory |
-            ForEach-Object {
-
-              Copy-Item `
-                -LiteralPath $_.FullName `
-                -Destination "$www\games\$($_.Name)" `
-                -Recurse `
-                -Force
-            }
-
-          Write-Host "Website payload created."
-
-      # ============================================================
-      # CREATE CEF PROJECT
-      # ============================================================
-
-      - name: Create CefSharp project
-        shell: pwsh
-        run: |
           @'
           <Project Sdk="Microsoft.NET.Sdk">
 
             <PropertyGroup>
               <OutputType>WinExe</OutputType>
-
               <TargetFramework>net8.0-windows</TargetFramework>
-
               <UseWindowsForms>true</UseWindowsForms>
-
-              <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-
-              <PlatformTarget>x64</PlatformTarget>
-
               <Nullable>enable</Nullable>
-
               <ImplicitUsings>enable</ImplicitUsings>
-
+              <Platforms>x64</Platforms>
+              <PlatformTarget>x64</PlatformTarget>
               <AssemblyName>Launcher-Le-Eaglercraft</AssemblyName>
-
               <RootNamespace>LauncherLeEaglercraft</RootNamespace>
-
-              <DebugType>None</DebugType>
-
-              <DebugSymbols>false</DebugSymbols>
             </PropertyGroup>
 
             <ItemGroup>
-              <PackageReference
-                Include="CefSharp.WinForms.NETCore"
-                Version="144.0.270" />
+              <PackageReference Include="CefSharp.WinForms.NETCore" Version="144.0.270" />
             </ItemGroup>
 
           </Project>
-          '@ |
-            Set-Content `
-              -Path "desktop\Launcher-Le-Eaglercraft.csproj" `
-              -Encoding UTF8
+          '@ | Set-Content "$desktop\Launcher-Le-Eaglercraft.csproj" -Encoding UTF8
 
-      # ============================================================
-      # CREATE CEF DESKTOP PROGRAM
-      # ============================================================
+      # ------------------------------------------------------------
+      # CREATE CEF# PROGRAM
+      # ------------------------------------------------------------
 
-      - name: Create CefSharp desktop launcher
+      - name: Create CefSharp Program.cs
         shell: pwsh
         run: |
+          $root = "${{ github.workspace }}"
+          $desktop = "$root\build\desktop"
+
           @'
           using System;
+          using System.Diagnostics;
           using System.IO;
           using System.Net;
           using System.Net.Sockets;
+          using System.Text;
+          using System.Threading;
           using System.Threading.Tasks;
           using System.Windows.Forms;
           using CefSharp;
@@ -582,660 +269,519 @@ jobs:
           {
               internal static class Program
               {
-                  private static string? runtimeRoot;
-                  private static HttpListener? server;
+                  private static TcpListener? server;
+                  private static CancellationTokenSource? serverCancellation;
+                  private static string wwwRoot = "";
 
                   [STAThread]
                   private static void Main()
                   {
-                      try
-                      {
-                          ApplicationConfiguration.Initialize();
+                      ApplicationConfiguration.Initialize();
 
-                          runtimeRoot =
-                              Path.Combine(
-                                  Path.GetTempPath(),
-                                  "Launcher-Le-Eaglercraft",
-                                  Guid.NewGuid().ToString("N")
-                              );
+                      wwwRoot = Path.Combine(
+                          AppContext.BaseDirectory,
+                          "www"
+                      );
 
-                          Directory.CreateDirectory(
-                              runtimeRoot
-                          );
-
-                          int port =
-                              GetFreePort();
-
-                          StartServer(
-                              runtimeRoot,
-                              port
-                          );
-
-                          var settings =
-                              new CefSettings();
-
-                          settings.CachePath =
-                              Path.Combine(
-                                  runtimeRoot,
-                                  "cef-cache"
-                              );
-
-                          settings.LogSeverity =
-                              LogSeverity.Disable;
-
-                          settings.UserAgent =
-                              "Launcher-Le-Eaglercraft/1.0";
-
-                          settings.CefCommandLineArgs.Add(
-                              "enable-webgl",
-                              "1"
-                          );
-
-                          settings.CefCommandLineArgs.Add(
-                              "enable-gpu-rasterization",
-                              "1"
-                          );
-
-                          settings.CefCommandLineArgs.Add(
-                              "ignore-gpu-blocklist",
-                              "1"
-                          );
-
-                          settings.CefCommandLineArgs.Add(
-                              "enable-media-stream",
-                              "1"
-                          );
-
-                          if (
-                              !Cef.Initialize(
-                                  settings,
-                                  true,
-                                  null
-                              )
-                          )
-                          {
-                              throw new Exception(
-                                  "CEF failed to initialize."
-                              );
-                          }
-
-                          using (
-                              var form =
-                                  new LauncherForm(
-                                      port
-                                  )
-                          )
-                          {
-                              Application.Run(
-                                  form
-                              );
-                          }
-
-                          Cef.Shutdown();
-
-                          StopServer();
-
-                          TryDeleteRuntime();
-                      }
-                      catch (Exception ex)
+                      if (!File.Exists(Path.Combine(wwwRoot, "index.html")))
                       {
                           MessageBox.Show(
-                              ex.ToString(),
+                              "Launcher files were not found.\n\nExpected:\n" +
+                              Path.Combine(wwwRoot, "index.html"),
                               "Launcher Le Eaglercraft",
                               MessageBoxButtons.OK,
                               MessageBoxIcon.Error
                           );
+
+                          return;
                       }
-                  }
 
-                  private static int GetFreePort()
-                  {
-                      using (
-                          var listener =
-                              new TcpListener(
-                                  IPAddress.Loopback,
-                                  0
-                              )
-                      )
-                      {
-                          listener.Start();
+                      int port = FindFreePort();
 
-                          return
-                              ((IPEndPoint)
-                                  listener.LocalEndpoint)
-                                  .Port;
-                      }
-                  }
+                      serverCancellation = new CancellationTokenSource();
 
-                  private static void StartServer(
-                      string root,
-                      int port
-                  )
-                  {
-                      server =
-                          new HttpListener();
-
-                      server.Prefixes.Add(
-                          $"http://127.0.0.1:{port}/"
+                      server = new TcpListener(
+                          IPAddress.Loopback,
+                          port
                       );
 
                       server.Start();
 
-                      _ =
-                          Task.Run(
-                              async () =>
-                              {
-                                  while (
-                                      server != null &&
-                                      server.IsListening
-                                  )
-                                  {
-                                      try
-                                      {
-                                          var context =
-                                              await server
-                                                  .GetContextAsync();
+                      _ = Task.Run(
+                          () => HandleServer(server, serverCancellation.Token)
+                      );
 
-                                          _ =
-                                              Task.Run(
-                                                  () =>
-                                                      HandleRequest(
-                                                          context,
-                                                          root
-                                                      )
-                                              );
-                                      }
-                                      catch
-                                      {
-                                          break;
-                                      }
-                                  }
-                              }
-                          );
+                      var settings = new CefSettings();
+
+                      settings.CachePath = Path.Combine(
+                          Path.GetTempPath(),
+                          "Launcher-Le-Eaglercraft-CefCache"
+                      );
+
+                      settings.LogSeverity = LogSeverity.Disable;
+
+                      settings.CefCommandLineArgs.Add(
+                          "disable-features",
+                          "OutOfBlinkCors"
+                      );
+
+                      settings.CefCommandLineArgs.Add(
+                          "enable-webgl"
+                      );
+
+                      settings.CefCommandLineArgs.Add(
+                          "ignore-gpu-blocklist"
+                      );
+
+                      settings.CefCommandLineArgs.Add(
+                          "enable-gpu"
+                      );
+
+                      settings.CefCommandLineArgs.Add(
+                          "enable-media-stream"
+                      );
+
+                      Cef.Initialize(
+                          settings,
+                          performDependencyCheck: false,
+                          browserProcessHandler: null
+                      );
+
+                      var browser = new ChromiumWebBrowser(
+                          $"http://127.0.0.1:{port}/"
+                      );
+
+                      browser.Dock = DockStyle.Fill;
+
+                      var form = new Form();
+
+                      form.Text = "Launcher Le Eaglercraft";
+                      form.Width = 1280;
+                      form.Height = 800;
+                      form.MinimumSize = new System.Drawing.Size(900, 600);
+                      form.StartPosition = FormStartPosition.CenterScreen;
+
+                      form.Controls.Add(browser);
+
+                      form.FormClosed += (_, _) =>
+                      {
+                          StopServer();
+
+                          try
+                          {
+                              Cef.Shutdown();
+                          }
+                          catch
+                          {
+                          }
+                      };
+
+                      Application.Run(form);
                   }
 
-                  private static void HandleRequest(
-                      HttpListenerContext context,
-                      string root
+                  private static int FindFreePort()
+                  {
+                      var listener = new TcpListener(
+                          IPAddress.Loopback,
+                          0
+                      );
+
+                      listener.Start();
+
+                      int port =
+                          ((IPEndPoint)listener.LocalEndpoint).Port;
+
+                      listener.Stop();
+
+                      return port;
+                  }
+
+                  private static async Task HandleServer(
+                      TcpListener listener,
+                      CancellationToken cancellationToken
                   )
                   {
-                      try
+                      while (!cancellationToken.IsCancellationRequested)
                       {
-                          string path =
-                              Uri.UnescapeDataString(
-                                  context.Request.Url
-                                      ?.AbsolutePath
-                                  ?? "/"
+                          TcpClient? client = null;
+
+                          try
+                          {
+                              client = await listener.AcceptTcpClientAsync(
+                                  cancellationToken
                               );
 
-                          if (
-                              path == "/" ||
-                              string.IsNullOrWhiteSpace(
-                                  path
-                              )
-                          )
-                          {
-                              path =
-                                  "/index.html";
+                              _ = Task.Run(
+                                  () => HandleRequest(client),
+                                  cancellationToken
+                              );
                           }
-
-                          path =
-                              path.TrimStart('/');
-
-                          path =
-                              path.Replace(
-                                  '/',
-                                  Path.DirectorySeparatorChar
-                              );
-
-                          if (
-                              path.Contains("..")
-                          )
+                          catch
                           {
-                              context.Response.StatusCode =
-                                  403;
+                              client?.Dispose();
 
-                              context.Response.Close();
+                              if (cancellationToken.IsCancellationRequested)
+                                  break;
+                          }
+                      }
+                  }
 
+                  private static async Task HandleRequest(
+                      TcpClient client
+                  )
+                  {
+                      using (client)
+                      using (NetworkStream stream = client.GetStream())
+                      {
+                          stream.ReadTimeout = 10000;
+                          stream.WriteTimeout = 10000;
+
+                          byte[] requestBuffer = new byte[16384];
+
+                          int bytesRead = await stream.ReadAsync(
+                              requestBuffer
+                          );
+
+                          if (bytesRead <= 0)
                               return;
-                          }
 
-                          string fullPath =
-                              Path.GetFullPath(
-                                  Path.Combine(
-                                      root,
-                                      path
-                                  )
+                          string request = Encoding.ASCII.GetString(
+                              requestBuffer,
+                              0,
+                              bytesRead
+                          );
+
+                          string[] requestLines =
+                              request.Split(
+                                  "\r\n",
+                                  StringSplitOptions.None
                               );
 
-                          string normalizedRoot =
-                              Path.GetFullPath(
-                                  root
-                              )
+                          if (requestLines.Length == 0)
+                              return;
+
+                          string[] requestParts =
+                              requestLines[0].Split(' ');
+
+                          if (requestParts.Length < 2)
+                              return;
+
+                          string requestPath = requestParts[1];
+
+                          int queryIndex = requestPath.IndexOf('?');
+
+                          if (queryIndex >= 0)
+                          {
+                              requestPath =
+                                  requestPath.Substring(0, queryIndex);
+                          }
+
+                          requestPath =
+                              Uri.UnescapeDataString(requestPath);
+
+                          if (requestPath == "/")
+                              requestPath = "/index.html";
+
+                          requestPath =
+                              requestPath.TrimStart('/')
+                              .Replace('/', Path.DirectorySeparatorChar);
+
+                          string fullPath = Path.GetFullPath(
+                              Path.Combine(wwwRoot, requestPath)
+                          );
+
+                          string wwwFullPath =
+                              Path.GetFullPath(wwwRoot)
                               .TrimEnd(
                                   Path.DirectorySeparatorChar
                               )
-                              +
-                              Path.DirectorySeparatorChar;
+                              + Path.DirectorySeparatorChar;
 
-                          if (
-                              !fullPath.StartsWith(
-                                  normalizedRoot,
-                                  StringComparison
-                                      .OrdinalIgnoreCase
-                              )
-                          )
+                          if (!fullPath.StartsWith(
+                                  wwwFullPath,
+                                  StringComparison.OrdinalIgnoreCase))
                           {
-                              context.Response.StatusCode =
-                                  403;
-
-                              context.Response.Close();
+                              await SendResponse(
+                                  stream,
+                                  403,
+                                  "text/plain",
+                                  "Forbidden"
+                              );
 
                               return;
                           }
 
-                          if (
-                              !File.Exists(
-                                  fullPath
-                              )
-                          )
+                          if (!File.Exists(fullPath))
                           {
-                              context.Response.StatusCode =
-                                  404;
-
-                              context.Response.Close();
+                              await SendResponse(
+                                  stream,
+                                  404,
+                                  "text/plain",
+                                  "Not Found"
+                              );
 
                               return;
                           }
 
                           byte[] data =
-                              File.ReadAllBytes(
-                                  fullPath
-                              );
+                              await File.ReadAllBytesAsync(fullPath);
 
-                          context.Response.StatusCode =
-                              200;
+                          string contentType =
+                              GetContentType(fullPath);
 
-                          context.Response.ContentType =
-                              GetMimeType(
-                                  fullPath
-                              );
+                          string headers =
+                              "HTTP/1.1 200 OK\r\n" +
+                              "Content-Type: " + contentType + "\r\n" +
+                              "Content-Length: " + data.Length + "\r\n" +
+                              "Cache-Control: no-cache\r\n" +
+                              "Cross-Origin-Opener-Policy: same-origin\r\n" +
+                              "Cross-Origin-Embedder-Policy: require-corp\r\n" +
+                              "Cross-Origin-Resource-Policy: same-origin\r\n" +
+                              "Access-Control-Allow-Origin: *\r\n" +
+                              "Connection: close\r\n" +
+                              "\r\n";
 
-                          context.Response.ContentLength64 =
-                              data.Length;
+                          byte[] headerBytes =
+                              Encoding.ASCII.GetBytes(headers);
 
-                          context.Response.Headers[
-                              "Cross-Origin-Opener-Policy"
-                          ] =
-                              "same-origin";
+                          await stream.WriteAsync(headerBytes);
 
-                          context.Response.Headers[
-                              "Cross-Origin-Embedder-Policy"
-                          ] =
-                              "require-corp";
-
-                          context.Response.Headers[
-                              "Cross-Origin-Resource-Policy"
-                          ] =
-                              "cross-origin";
-
-                          context.Response.Headers[
-                              "X-Content-Type-Options"
-                          ] =
-                              "nosniff";
-
-                          context.Response.OutputStream.Write(
-                              data,
-                              0,
-                              data.Length
-                          );
-
-                          context.Response.OutputStream.Close();
-                      }
-                      catch
-                      {
-                          try
-                          {
-                              context.Response.StatusCode =
-                                  500;
-
-                              context.Response.Close();
-                          }
-                          catch
-                          {
-                          }
+                          await stream.WriteAsync(data);
                       }
                   }
 
-                  private static string GetMimeType(
+                  private static string GetContentType(
                       string path
                   )
                   {
-                      string ext =
-                          Path.GetExtension(
-                              path
-                          ).ToLowerInvariant();
+                      string extension =
+                          Path.GetExtension(path)
+                              .ToLowerInvariant();
 
-                      return ext switch
+                      return extension switch
                       {
-                          ".html" or ".htm" =>
-                              "text/html; charset=utf-8",
-
-                          ".js" or ".mjs" =>
-                              "application/javascript",
-
-                          ".css" =>
-                              "text/css",
-
-                          ".json" =>
-                              "application/json",
-
-                          ".wasm" =>
-                              "application/wasm",
-
-                          ".epk" or ".epw" =>
-                              "application/octet-stream",
-
-                          ".bin" or ".data" =>
-                              "application/octet-stream",
-
-                          ".png" =>
-                              "image/png",
-
-                          ".jpg" or ".jpeg" =>
-                              "image/jpeg",
-
-                          ".gif" =>
-                              "image/gif",
-
-                          ".webp" =>
-                              "image/webp",
-
-                          ".svg" =>
-                              "image/svg+xml",
-
-                          ".ico" =>
-                              "image/x-icon",
-
-                          ".woff" =>
-                              "font/woff",
-
-                          ".woff2" =>
-                              "font/woff2",
-
-                          ".ttf" =>
-                              "font/ttf",
-
-                          ".mp3" =>
-                              "audio/mpeg",
-
-                          ".ogg" =>
-                              "audio/ogg",
-
-                          ".wav" =>
-                              "audio/wav",
-
-                          ".mp4" =>
-                              "video/mp4",
-
-                          ".webm" =>
-                              "video/webm",
-
-                          _ =>
-                              "application/octet-stream"
+                          ".html" => "text/html; charset=utf-8",
+                          ".htm" => "text/html; charset=utf-8",
+                          ".js" => "text/javascript; charset=utf-8",
+                          ".mjs" => "text/javascript; charset=utf-8",
+                          ".css" => "text/css; charset=utf-8",
+                          ".json" => "application/json",
+                          ".wasm" => "application/wasm",
+                          ".epk" => "application/octet-stream",
+                          ".epw" => "application/octet-stream",
+                          ".bin" => "application/octet-stream",
+                          ".data" => "application/octet-stream",
+                          ".map" => "application/json",
+                          ".png" => "image/png",
+                          ".jpg" => "image/jpeg",
+                          ".jpeg" => "image/jpeg",
+                          ".gif" => "image/gif",
+                          ".svg" => "image/svg+xml",
+                          ".ico" => "image/x-icon",
+                          ".webp" => "image/webp",
+                          ".mp3" => "audio/mpeg",
+                          ".wav" => "audio/wav",
+                          ".ogg" => "audio/ogg",
+                          ".mp4" => "video/mp4",
+                          ".webm" => "video/webm",
+                          ".txt" => "text/plain; charset=utf-8",
+                          ".xml" => "application/xml",
+                          ".zip" => "application/zip",
+                          _ => "application/octet-stream"
                       };
+                  }
+
+                  private static async Task SendResponse(
+                      NetworkStream stream,
+                      int statusCode,
+                      string contentType,
+                      string text
+                  )
+                  {
+                      byte[] body =
+                          Encoding.UTF8.GetBytes(text);
+
+                      string status =
+                          statusCode == 200
+                              ? "OK"
+                              : statusCode == 403
+                                  ? "Forbidden"
+                                  : "Not Found";
+
+                      string headers =
+                          $"HTTP/1.1 {statusCode} {status}\r\n" +
+                          $"Content-Type: {contentType}\r\n" +
+                          $"Content-Length: {body.Length}\r\n" +
+                          "Connection: close\r\n" +
+                          "\r\n";
+
+                      byte[] headerBytes =
+                          Encoding.ASCII.GetBytes(headers);
+
+                      await stream.WriteAsync(headerBytes);
+                      await stream.WriteAsync(body);
                   }
 
                   private static void StopServer()
                   {
                       try
                       {
+                          serverCancellation?.Cancel();
+                      }
+                      catch
+                      {
+                      }
+
+                      try
+                      {
                           server?.Stop();
-                          server?.Close();
-                          server = null;
-                      }
-                      catch
-                      {
-                      }
-                  }
-
-                  private static void TryDeleteRuntime()
-                  {
-                      try
-                      {
-                          if (
-                              !string.IsNullOrWhiteSpace(
-                                  runtimeRoot
-                              ) &&
-                              Directory.Exists(
-                                  runtimeRoot
-                              )
-                          )
-                          {
-                              Directory.Delete(
-                                  runtimeRoot,
-                                  true
-                              );
-                          }
-                      }
-                      catch
-                      {
-                      }
-                  }
-              }
-
-              internal sealed class LauncherForm
-                  : Form
-              {
-                  private readonly
-                      ChromiumWebBrowser browser;
-
-                  public LauncherForm(
-                      int port
-                  )
-                  {
-                      Text =
-                          "Launcher Le Eaglercraft";
-
-                      Width = 1280;
-                      Height = 800;
-
-                      MinimumSize =
-                          new System.Drawing.Size(
-                              900,
-                              600
-                          );
-
-                      StartPosition =
-                          FormStartPosition.CenterScreen;
-
-                      browser =
-                          new ChromiumWebBrowser(
-                              $"http://127.0.0.1:{port}/"
-                          );
-
-                      browser.Dock =
-                          DockStyle.Fill;
-
-                      Controls.Add(
-                          browser
-                      );
-                  }
-
-                  protected override void
-                      OnFormClosed(
-                          FormClosedEventArgs e
-                      )
-                  {
-                      try
-                      {
-                          browser.StopLoading();
-                          browser.Dispose();
                       }
                       catch
                       {
                       }
 
-                      base.OnFormClosed(
-                          e
-                      );
+                      server = null;
+                      serverCancellation = null;
                   }
               }
           }
-          '@ |
-            Set-Content `
-              -Path "desktop\Program.cs" `
-              -Encoding UTF8
+          '@ | Set-Content "$desktop\Program.cs" -Encoding UTF8
 
-      # ============================================================
-      # RESTORE CEF
-      # ============================================================
+      # ------------------------------------------------------------
+      # RESTORE CEF#
+      # ------------------------------------------------------------
 
-      - name: Restore CefSharp project
+      - name: Restore CefSharp
         shell: pwsh
+        working-directory: build/desktop
         run: |
-          dotnet restore `
-            "desktop\Launcher-Le-Eaglercraft.csproj"
+          dotnet restore Launcher-Le-Eaglercraft.csproj
 
-      # ============================================================
-      # PUBLISH CEF LAUNCHER
-      # ============================================================
+      # ------------------------------------------------------------
+      # PUBLISH CEF# LAUNCHER
+      # ------------------------------------------------------------
 
       - name: Publish CefSharp launcher
         shell: pwsh
+        working-directory: build/desktop
         run: |
-          dotnet publish `
-            "desktop\Launcher-Le-Eaglercraft.csproj" `
+          dotnet publish Launcher-Le-Eaglercraft.csproj `
             -c Release `
             -r win-x64 `
             --self-contained true `
             -p:PublishSingleFile=false `
-            -p:DebugType=None `
-            -p:DebugSymbols=false `
-            -o "build\desktop"
+            -p:IncludeNativeLibrariesForSelfExtract=false `
+            -o "${{ github.workspace }}\build\cef-publish"
 
-      # ============================================================
-      # VERIFY CEF BUILD
-      # ============================================================
+      # ------------------------------------------------------------
+      # COPY WEBSITE INTO CEF PAYLOAD
+      # IMPORTANT:
+      # THE WEBSITE IS COPIED AFTER THE DESKTOP PROJECT IS BUILT.
+      # ------------------------------------------------------------
 
-      - name: Verify CefSharp build
+      - name: Assemble CEF payload
         shell: pwsh
         run: |
-          $exe =
-            "${{ github.workspace }}\build\desktop\Launcher-Le-Eaglercraft.exe"
+          $root = "${{ github.workspace }}"
+          $publish = "$root\build\cef-publish"
+          $website = "$root\build\website"
 
-          if (-not (Test-Path $exe)) {
-            throw "CEF launcher EXE was not created."
+          if (!(Test-Path "$publish\Launcher-Le-Eaglercraft.exe")) {
+            Write-Error "CefSharp launcher executable was not created."
+            Get-ChildItem $publish -Recurse
+            exit 1
           }
 
-          Write-Host "CEF launcher built successfully."
+          New-Item -ItemType Directory -Force `
+            -Path "$publish\www" | Out-Null
 
-      # ============================================================
+          Get-ChildItem -Force $website | ForEach-Object {
+            Copy-Item `
+              $_.FullName `
+              "$publish\www" `
+              -Recurse `
+              -Force
+          }
+
+          if (!(Test-Path "$publish\www\index.html")) {
+            Write-Error "Website index.html was not copied into the CefSharp payload."
+            exit 1
+          }
+
+          Write-Host "CEF payload assembled successfully."
+
+      # ------------------------------------------------------------
       # CREATE BOOTSTRAP PROJECT
-      # ============================================================
+      # ------------------------------------------------------------
 
-      - name: Create bootstrap project
+      - name: Create single EXE bootstrap project
         shell: pwsh
         run: |
+          $root = "${{ github.workspace }}"
+          $bootstrap = "$root\build\bootstrap"
+
           @'
           <Project Sdk="Microsoft.NET.Sdk">
 
             <PropertyGroup>
               <OutputType>WinExe</OutputType>
-
               <TargetFramework>net8.0-windows</TargetFramework>
-
-              <UseWindowsForms>true</UseWindowsForms>
-
+              <ImplicitUsings>enable</ImplicitUsings>
+              <Nullable>enable</Nullable>
               <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-
               <SelfContained>true</SelfContained>
-
-              <PlatformTarget>x64</PlatformTarget>
-
               <PublishSingleFile>true</PublishSingleFile>
-
               <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-
               <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
-
               <AssemblyName>Launcher-Le-Eaglercraft</AssemblyName>
-
               <RootNamespace>LauncherLeEaglercraftBootstrap</RootNamespace>
-
-              <DebugType>None</DebugType>
-
-              <DebugSymbols>false</DebugSymbols>
             </PropertyGroup>
 
             <ItemGroup>
-              <EmbeddedResource Include="payload.zip">
-                <LogicalName>LauncherLeEaglercraft.payload.zip</LogicalName>
-              </EmbeddedResource>
+              <EmbeddedResource Include="payload.zip" />
             </ItemGroup>
 
           </Project>
-          '@ |
-            Set-Content `
-              -Path "bootstrap\Launcher-Le-Eaglercraft.csproj" `
-              -Encoding UTF8
+          '@ | Set-Content "$bootstrap\Launcher-Le-Eaglercraft.csproj" -Encoding UTF8
 
-      # ============================================================
-      # CREATE COMPLETE PAYLOAD
-      # ============================================================
+      # ------------------------------------------------------------
+      # ZIP THE CEF PAYLOAD
+      # ------------------------------------------------------------
 
-      - name: Create complete embedded payload
+      - name: Create embedded payload
         shell: pwsh
         run: |
-          $payload =
-            "${{ github.workspace }}\bootstrap\payload"
+          $root = "${{ github.workspace }}"
+          $publish = "$root\build\cef-publish"
+          $bootstrap = "$root\build\bootstrap"
 
-          if (Test-Path $payload) {
-            Remove-Item `
-              $payload `
-              -Recurse `
-              -Force
+          if (!(Test-Path "$publish\Launcher-Le-Eaglercraft.exe")) {
+            Write-Error "CefSharp executable is missing."
+            exit 1
           }
 
-          New-Item `
-            -ItemType Directory `
-            -Force `
-            -Path $payload |
-            Out-Null
+          Compress-Archive `
+            -Path "$publish\*" `
+            -DestinationPath "$bootstrap\payload.zip" `
+            -Force
 
-          # Copy CEF launcher files.
-          Get-ChildItem `
-            -LiteralPath "${{ github.workspace }}\build\desktop" `
-            -Force |
-            Copy-Item `
-              -Destination $payload `
-              -Recurse `
-              -Force
+          if (!(Test-Path "$bootstrap\payload.zip")) {
+            Write-Error "payload.zip was not created."
+            exit 1
+          }
 
-          # Copy website.
-          New-Item `
-            -ItemType Directory `
-            -Force `
-            -Path "$payload\www" |
-            Out-Null
+          Write-Host "Payload ZIP created."
 
-          Get-ChildItem `
-            -LiteralPath "${{ github.workspace }}\desktop\www" `
-            -Force |
-            Copy-Item `
-              -Destination "$payload\www" `
-              -Recurse `
-              -Force
-
-          Write-Host "Complete payload assembled."
-
-      # ============================================================
+      # ------------------------------------------------------------
       # CREATE BOOTSTRAP PROGRAM
-      # ============================================================
+      # ------------------------------------------------------------
 
-      - name: Create bootstrap program
+      - name: Create bootstrap Program.cs
         shell: pwsh
         run: |
+          $root = "${{ github.workspace }}"
+          $bootstrap = "$root\build\bootstrap"
+
           @'
           using System;
           using System.Diagnostics;
@@ -1258,16 +804,26 @@ jobs:
                               Path.Combine(
                                   Path.GetTempPath(),
                                   "Launcher-Le-Eaglercraft",
-                                  Guid.NewGuid().ToString("N")
+                                  "Runtime"
                               );
 
-                          Directory.CreateDirectory(
-                              root
-                          );
+                          if (Directory.Exists(root))
+                          {
+                              try
+                              {
+                                  Directory.Delete(
+                                      root,
+                                      true
+                                  );
+                              }
+                              catch
+                              {
+                              }
+                          }
 
-                          ExtractPayload(
-                              root
-                          );
+                          Directory.CreateDirectory(root);
+
+                          ExtractPayload(root);
 
                           string launcher =
                               Path.Combine(
@@ -1275,34 +831,23 @@ jobs:
                                   "Launcher-Le-Eaglercraft.exe"
                               );
 
-                          if (
-                              !File.Exists(
-                                  launcher
-                              )
-                          )
+                          if (!File.Exists(launcher))
                           {
                               throw new FileNotFoundException(
-                                  "The embedded CEF launcher was not found.",
+                                  "Extracted CefSharp launcher was not found.",
                                   launcher
                               );
                           }
 
-                          ProcessStartInfo startInfo =
+                          var process =
                               new ProcessStartInfo
                               {
-                                  FileName =
-                                      launcher,
-
-                                  WorkingDirectory =
-                                      root,
-
-                                  UseShellExecute =
-                                      false
+                                  FileName = launcher,
+                                  WorkingDirectory = root,
+                                  UseShellExecute = true
                               };
 
-                          Process.Start(
-                              startInfo
-                          );
+                          Process.Start(process);
                       }
                       catch (Exception ex)
                       {
@@ -1320,38 +865,31 @@ jobs:
                   )
                   {
                       Assembly assembly =
-                          typeof(Program).Assembly;
+                          Assembly.GetExecutingAssembly();
 
                       string? resource =
                           assembly
                               .GetManifestResourceNames()
                               .FirstOrDefault(
-                                  x =>
-                                      x.EndsWith(
-                                          "payload.zip",
-                                          StringComparison
-                                              .OrdinalIgnoreCase
-                                      )
+                                  x => x.EndsWith(
+                                      "payload.zip",
+                                      StringComparison.OrdinalIgnoreCase
+                                  )
                               );
 
-                      if (
-                          resource == null
-                      )
+                      if (resource == null)
                       {
                           throw new FileNotFoundException(
                               "Embedded payload.zip was not found."
                           );
                       }
 
-                      using Stream? input =
-                          assembly
-                              .GetManifestResourceStream(
-                                  resource
-                              );
+                      using Stream? stream =
+                          assembly.GetManifestResourceStream(
+                              resource
+                          );
 
-                      if (
-                          input == null
-                      )
+                      if (stream == null)
                       {
                           throw new FileNotFoundException(
                               "Could not open embedded payload.zip."
@@ -1360,20 +898,16 @@ jobs:
 
                       string zip =
                           Path.Combine(
-                              root,
-                              "payload.zip"
+                              Path.GetTempPath(),
+                              "Launcher-Le-Eaglercraft-payload.zip"
                           );
 
                       using (
-                          FileStream output =
-                              File.Create(
-                                  zip
-                              )
+                          FileStream file =
+                              File.Create(zip)
                       )
                       {
-                          input.CopyTo(
-                              output
-                          );
+                          stream.CopyTo(file);
                       }
 
                       ZipFile.ExtractToDirectory(
@@ -1382,147 +916,79 @@ jobs:
                           true
                       );
 
-                      File.Delete(
-                          zip
-                      );
+                      try
+                      {
+                          File.Delete(zip);
+                      }
+                      catch
+                      {
+                      }
                   }
               }
           }
-          '@ |
-            Set-Content `
-              -Path "bootstrap\Program.cs" `
-              -Encoding UTF8
+          '@ | Set-Content "$bootstrap\Program.cs" -Encoding UTF8
 
-      # ============================================================
-      # CREATE PAYLOAD ZIP
-      # ============================================================
+      # ------------------------------------------------------------
+      # PUBLISH FINAL SINGLE EXE
+      # ------------------------------------------------------------
 
-      - name: Create payload ZIP
+      - name: Publish final EXE
         shell: pwsh
+        working-directory: build/bootstrap
         run: |
-          $zip =
-            "${{ github.workspace }}\bootstrap\payload.zip"
+          dotnet restore Launcher-Le-Eaglercraft.csproj
 
-          if (Test-Path $zip) {
-            Remove-Item `
-              $zip `
-              -Force
-          }
-
-          Compress-Archive `
-            -Path "${{ github.workspace }}\bootstrap\payload\*" `
-            -DestinationPath $zip `
-            -CompressionLevel Optimal
-
-          if (-not (Test-Path $zip)) {
-            throw "payload.zip was not created."
-          }
-
-          $size =
-            (Get-Item $zip).Length
-
-          Write-Host "Payload ZIP created."
-          Write-Host "Payload size: $size bytes."
-
-      # ============================================================
-      # RESTORE BOOTSTRAP
-      # ============================================================
-
-      - name: Restore bootstrap
-        shell: pwsh
-        run: |
-          dotnet restore `
-            "bootstrap\Launcher-Le-Eaglercraft.csproj"
-
-      # ============================================================
-      # BUILD FINAL SINGLE EXE
-      # ============================================================
-
-      - name: Build final single EXE
-        shell: pwsh
-        run: |
-          dotnet publish `
-            "bootstrap\Launcher-Le-Eaglercraft.csproj" `
+          dotnet publish Launcher-Le-Eaglercraft.csproj `
             -c Release `
             -r win-x64 `
             --self-contained true `
             -p:PublishSingleFile=true `
             -p:IncludeNativeLibrariesForSelfExtract=true `
             -p:EnableCompressionInSingleFile=true `
-            -p:DebugType=None `
-            -p:DebugSymbols=false `
-            -o "release"
+            -o "${{ github.workspace }}\release"
 
-      # ============================================================
+      # ------------------------------------------------------------
       # VERIFY FINAL EXE
-      # ============================================================
+      # ------------------------------------------------------------
 
       - name: Verify final EXE
         shell: pwsh
         run: |
-          $exe =
-            "${{ github.workspace }}\release\Launcher-Le-Eaglercraft.exe"
+          $exe = "${{ github.workspace }}\release\Launcher-Le-Eaglercraft.exe"
 
-          if (-not (Test-Path $exe)) {
-            throw "Final Launcher-Le-Eaglercraft.exe was not created."
+          if (!(Test-Path $exe)) {
+            Write-Error "Final EXE was not created."
+            Get-ChildItem "${{ github.workspace }}\release" -Force
+            exit 1
           }
 
-          $file =
-            Get-Item $exe
+          $size = (Get-Item $exe).Length
 
-          Write-Host ""
-          Write-Host "============================================"
-          Write-Host "FINAL LAUNCHER CREATED"
-          Write-Host "============================================"
-          Write-Host "Path: $($file.FullName)"
-          Write-Host "Size: $($file.Length) bytes"
-          Write-Host "============================================"
+          Write-Host "Final EXE:"
+          Write-Host $exe
+          Write-Host "Size: $size bytes"
 
-      # ============================================================
+          if ($size -lt 1000000) {
+            Write-Warning "The EXE is unexpectedly small."
+          }
+
+      # ------------------------------------------------------------
       # CREATE CHANGELOG
-      # ============================================================
+      # ------------------------------------------------------------
 
-      - name: Create release changelog
+      - name: Create changelog
         shell: pwsh
         run: |
-          $sha =
-            "${{ github.sha }}"
+          $root = "${{ github.workspace }}"
 
-          $shortSha =
-            $sha.Substring(
-              0,
-              7
-            )
+          @'
+          # Launcher Le Eaglercraft
 
-          $run =
-            "${{ github.run_number }}"
+          ## Current Build
 
-          $date =
-            (Get-Date).ToUniversalTime().ToString(
-              "yyyy-MM-dd HH:mm 'UTC'"
-            )
+          This release packages the Launcher Le Eaglercraft website and all 13 game repositories into one Windows x64 executable.
 
-          @"
-          # Launcher Le Eaglercraft - Build $run
-
-          ## Changes
-
-          - Replaced Microsoft WebView2 with Chromium Embedded Framework through CefSharp.
-          - Added a Chromium-based desktop launcher.
-          - Added an internal localhost HTTP server.
-          - Added COOP support.
-          - Added COEP support.
-          - Added CORP support.
-          - Added WebAssembly MIME type support.
-          - Added EPK/EPW resource support.
-          - Added local game resource serving.
-          - Embedded the launcher website.
-          - Embedded all 13 game repositories.
-          - Added single-file bootstrap packaging.
-          - Added self-contained Windows x64 publishing.
-          - Added automatic GitHub Release creation.
-
-          ## Included Repositories
+          ### Included repositories
 
           - secret-stuff
           - secret-stuff-v2
@@ -1538,43 +1004,39 @@ jobs:
           - secret-stuff-v12
           - secret-stuff-v13
 
-          ## Packaging
+          ### Launcher mappings
 
-          The GitHub Release contains:
+          - Minecraft 26.2 → secret-stuff-v10
+          - Minecraft 1.16.5 → secret-stuff-v11
+          - Minecraft 1.14.4 → secret-stuff-v12
+          - Minecraft 1.13.2 → secret-stuff-v13
+          - Minecraft 1.12.2 → secret-stuff
+          - EaglercraftX 1.8.8 → secret-stuff-v6
+          - Beta 1.7.3 → secret-stuff-v4
+          - Beta 1.3_01 → secret-stuff-v7
+          - Alpha 1.2.6 → secret-stuff-v5
+          - Indev → secret-stuff-v3
+          - C0.30 → secret-stuff-v8
 
-          - Launcher-Le-Eaglercraft.exe
+          ### Runtime
 
-          The launcher contains the desktop Chromium launcher,
-          launcher HTML files, and all 13 game repositories.
+          The Windows launcher uses CefSharp/Chromium and serves the bundled launcher through a local HTTP server.
 
-          ## Build Information
+          The final release contains one EXE asset.
+          '@ | Set-Content "$root\CHANGELOG.md" -Encoding UTF8
 
-          - Build: $run
-          - Commit: $shortSha
-          - Date: $date
-          - Platform: Windows x64
-          - Framework: .NET 8
-          - Browser: Chromium / CefSharp
-
-          No ZIP download is required.
-          "@ |
-            Set-Content `
-              -Path "${{ github.workspace }}\release\CHANGELOG.md" `
-              -Encoding UTF8
-
-      # ============================================================
+      # ------------------------------------------------------------
       # CREATE GITHUB RELEASE
-      # ============================================================
+      # ------------------------------------------------------------
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: "launcher-build-${{ github.run_number }}"
-          name: "Launcher Le Eaglercraft - Build ${{ github.run_number }}"
-          body_path: "release/CHANGELOG.md"
+          tag_name: "build-${{ github.run_number }}"
+          name: "Launcher Le Eaglercraft Build ${{ github.run_number }}"
+          body_path: CHANGELOG.md
           files: |
             release/Launcher-Le-Eaglercraft.exe
-          draft: false
-          prerelease: false
+          make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
